@@ -11,8 +11,14 @@
 - [x] CI workflow (lint, typecheck, tests, build)
 - [x] README, ROADMAP, AGENTS, CLAUDE and PR template
 
+## Architecture plan
+
+- Build the JalaCampus backend in Node.js/TypeScript, starting with Next.js server-side API routes. Keep document storage, validation and retrieval under JalaCampus control.
+- Add the existing [jussi-aibot](https://github.com/jussipalanen/jussi-aibot) Python/FastAPI service in M3 through a server-to-server adapter; do not call it directly from the browser or expose service credentials.
+- Treat the AI service as an integration candidate, not a completed campus RAG implementation. Verify that retrieved campus documents and stable source IDs reach the answer before enabling citations.
+
 ## ⏭️ M1 — Documents (`feat/document-library`)
-- [ ] Add an admin-facing document list and sample document upload (PDF/text)
+- [ ] Add an admin-facing document list and sample document upload (PDF/text) through a Node.js/TypeScript API
 - [ ] Add file validation, size limits and clear errors
 - [ ] Include only fabricated or licensed public test material
 - [ ] Unit tests for parser/validation; Finnish user-facing messages
@@ -22,7 +28,7 @@
 ## ⏭️ M2 — Database & embeddings (`feat/vector-index`)
 - [ ] PostgreSQL schema/migrations for documents, chunks and metadata
 - [ ] pgvector extension and embedding storage
-- [ ] Chunking pipeline and idempotent ingestion
+- [ ] Node.js/TypeScript chunking pipeline and idempotent ingestion
 - [ ] Free/local embedding model initially; configurable adapter
 - [ ] Tests using deterministic fixtures
 
@@ -30,10 +36,10 @@
 
 ## ⏭️ M3 — RAG chat (`feat/rag-chat`)
 - [ ] Retrieval service with source IDs and relevance metadata
-- [ ] Pluggable LLM adapter (Gemini free tier by default; provider may change)
-- [ ] Server-only API keys, rate limits, input validation and timeouts
+- [ ] Add a server-to-server adapter for `jussi-aibot` and a campus-specific agent configuration; keep the adapter mockable in tests
+- [ ] Keep `jussi-aibot` credentials server-side; apply rate limits, input validation and timeouts at the Node.js API boundary
 - [ ] Prompt injection boundaries and grounded-answer instructions
-- [ ] Finnish answers with visible citations; honest fallback on no evidence
+- [ ] Verify retrieval from ingested campus documents with stable source IDs; show Finnish answers with visible, traceable citations and an honest fallback on no evidence
 - [ ] Mocked automated tests; basic evaluation set for Finnish prompts
 
 **Acceptance:** The assistant references actual retrieved source documents, refuses to invent citations, and handles API failures safely.
