@@ -84,7 +84,7 @@ M2 begins with a PostgreSQL/pgvector migration in `db/migrations/001_documents.s
 
 ### Local PostgreSQL with Docker
 
-Run `docker compose up -d` to start a local PostgreSQL server with pgvector. Then apply `db/migrations/001_documents.sql` using `psql`. Set `POSTGRES_PASSWORD` in a local, untracked environment file before starting the container. This database is for development only; Vercel needs a separately provisioned PostgreSQL service.
+Run `docker compose up -d` to start the local PostgreSQL/pgvector service and `docker compose down` to stop it. The named volume keeps data between restarts; `docker compose down -v` also deletes local database data. Then apply `db/migrations/001_documents.sql` using `psql`. Set `POSTGRES_PASSWORD` in a local, untracked environment file before starting the container. This database is for development only; Vercel needs a separately provisioned PostgreSQL service.
 
 ## ☁️ Vercel deployment
 
