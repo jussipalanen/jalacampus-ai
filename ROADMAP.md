@@ -25,13 +25,13 @@
 4. Empty or failed retrieval, embedding failure, and AI service errors produce a clear Finnish fallback without fabricated citations. Test the cross-service contract with synthetic fixtures and mocked AI providers before enabling the chat UI.
 
 
-## ⏭️ M1 — Documents (`feat/document-library`)
-- [ ] Add an admin-facing document list and sample document upload (PDF/text) through a Node.js/TypeScript API
-- [ ] Add file validation, size limits and clear errors
-- [ ] Include only fabricated or licensed public test material
-- [ ] Unit tests for parser/validation; Finnish user-facing messages
+## ✅ M1 — Document preview (`feat/document-library`)
+- [x] Add a demo document list and sample PDF/TXT preview through a Node.js/TypeScript API (no persistence or admin authentication yet)
+- [x] Add file validation, size limits and clear Finnish errors
+- [x] Include only fabricated test fixtures and warn against private uploads
+- [x] Unit tests for parser/validation; Finnish user-facing messages
 
-**Acceptance:** A test document can be uploaded and its extracted content previewed without exposing secrets or student records.
+**Acceptance:** A synthetic test document can be uploaded and its extracted content previewed without persistence. Authentication and durable storage belong to a later milestone.
 
 ## ⏭️ M2 — Database & embeddings (`feat/vector-index`)
 - [ ] PostgreSQL schema/migrations for documents, chunks and metadata
