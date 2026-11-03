@@ -73,6 +73,14 @@ npm run build
 
 `.env.example` documents **future** configuration; no API key is required to run the UI scaffold.
 
+## ☁️ Vercel deployment
+
+Import `jussipalanen/jalacampus-ai` into Vercel as a **Next.js** project. Use the repository root as the Root Directory, `main` as the Production Branch, Node.js **22.x**, and the default Next.js build and output settings. The current UI scaffold requires **no environment variables**. Do not add the values from `.env.example` until the corresponding server-side features exist.
+
+Vercel creates Preview deployments for pull requests and a Production deployment for commits merged into `main`. Check that the first deployment finishes successfully, the page loads in Finnish on desktop and mobile, and the interface stays in its light theme. Keep the Vercel project private if the demo should not be publicly reachable; Vercel deployment protection is configured in the project dashboard, not by this repository.
+
+No `vercel.json` is needed for the current Next.js app. The local `.vercel/` project link is ignored by Git.
+
 ## 🗂️ Project structure
 
 ```text
