@@ -34,11 +34,11 @@
 **Acceptance:** A synthetic test document can be uploaded and its extracted content previewed without persistence. Authentication and durable storage belong to a later milestone.
 
 ## ⏭️ M2 — Database & embeddings (`feat/vector-index`)
-- [ ] PostgreSQL schema/migrations for documents, chunks and metadata
+- [x] Draft a PostgreSQL/pgvector schema for documents, chunks and metadata (not deployed yet)
 - [ ] pgvector extension and embedding storage
-- [ ] Node.js/TypeScript chunking pipeline and idempotent ingestion
+- [x] Deterministic Node.js/TypeScript chunking with stable IDs\n- [ ] Persist chunks with idempotent ingestion
 - [ ] Free/local embedding model initially; configurable adapter
-- [ ] Tests using deterministic fixtures
+- [x] Unit tests for chunk boundaries, Unicode and stable IDs\n- [ ] Database integration tests with deterministic fixtures
 
 **Acceptance:** Ingested sample text is searchable by semantic similarity; repeated ingestion doesn't duplicate chunks.
 
