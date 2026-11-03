@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")"
+
+case "${1:-}" in
+  up) docker compose up -d ;;
+  down) docker compose down ;;
+  status) docker compose ps ;;
+  logs) docker compose logs -f ;;
+  *)
+    echo "Usage: ./dev {up|down|status|logs}" >&2
+    exit 2
+    ;;
+esac
