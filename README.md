@@ -78,6 +78,14 @@ npm run build
 
 The **Dokumentit** tab accepts synthetic or licensed public PDF and UTF-8 TXT samples up to 2 MB. A Node.js route extracts up to 10 PDF pages and returns at most 20,000 characters for preview. The document list stays in the current page session only; files are not persisted, indexed, or sent to an AI provider. The demo has no admin authentication, so do not upload student records or other private material.
 
+## 🗃️ Vector storage foundation
+
+M2 begins with a PostgreSQL/pgvector migration in `db/migrations/001_documents.sql` and a deterministic Unicode-safe text chunker. The migration is **not applied automatically** and no database, ingestion API, embeddings, or semantic search is available yet. Its vector column intentionally has no fixed dimension until an embedding model is chosen.
+
+### Local PostgreSQL with Docker
+
+Run `./dev up` to start the local PostgreSQL/pgvector service and `./dev down` to stop it. Use `./dev restart` to force-recreate the service, `./dev status` to check it, or `./dev logs` to follow its logs. The named volume keeps data between restarts; `docker compose down -v` also deletes local database data. Then apply `db/migrations/001_documents.sql` using `psql`. Set `POSTGRES_PASSWORD` in a local, untracked environment file before starting the container. This database is for development only; Vercel needs a separately provisioned PostgreSQL service.
+
 ## ☁️ Vercel deployment
 
 Import `jussipalanen/jalacampus-ai` into Vercel as a **Next.js** project. Use the repository root as the Root Directory, `main` as the Production Branch, Node.js **22.x**, and the default Next.js build and output settings. The current UI scaffold requires **no environment variables**. Do not add the values from `.env.example` until the corresponding server-side features exist.
