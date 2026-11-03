@@ -21,14 +21,15 @@
 JalaCampus AI is a university-oriented demo that aims to make study guides, course information and campus instructions easier to find. The final concept combines a **Finnish-language chat interface**, **retrieval-augmented generation (RAG)**, **PostgreSQL + pgvector**, and an exchangeable LLM provider.
 
 > [!IMPORTANT]
-> **Current status:** This repository initially includes a working, responsive **UI scaffold only**. AI, embeddings, document ingestion, PostgreSQL and RAG **are planned**, not implemented. The interface deliberately avoids fabricated answers and citations.
+> **Current status:** This repository includes a responsive UI and a session-only PDF/TXT document preview. Persistent document ingestion, AI, embeddings, PostgreSQL and RAG **are planned**, not implemented. The interface deliberately avoids fabricated answers and citations.
 
 ### 🧭 Demo features
 
 | | Module | Status |
 | --- | --- | --- |
 | 💬 | Finnish chat UI | ✅ UI scaffold |
-| 📄 | Document catalog & ingestion | 🗓️ Planned |
+| 📄 | PDF/TXT document preview | ✅ Session-only demo |
+| 🗃️ | Persistent document catalog & ingestion | 🗓️ Planned |
 | 🔎 | Semantic document retrieval (RAG) | 🗓️ Planned |
 | 📚 | Course information API | 🗓️ Planned |
 | 🛡️ | Grounded answers and source citations | 🗓️ Planned |
@@ -72,6 +73,10 @@ npm run build
 ```
 
 `.env.example` documents **future** configuration; no API key is required to run the UI scaffold.
+
+## 📄 Document preview
+
+The **Dokumentit** tab accepts synthetic or licensed public PDF and UTF-8 TXT samples up to 2 MB. A Node.js route extracts up to 10 PDF pages and returns at most 20,000 characters for preview. The document list stays in the current page session only; files are not persisted, indexed, or sent to an AI provider. The demo has no admin authentication, so do not upload student records or other private material.
 
 ## ☁️ Vercel deployment
 
