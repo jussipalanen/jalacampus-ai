@@ -94,6 +94,19 @@ Vercel creates Preview deployments for pull requests and a Production deployment
 
 No `vercel.json` is needed for the current Next.js app. The local `.vercel/` project link is ignored by Git.
 
+## 📦 GitHub releases
+
+Release publication is controlled by a version tag on `main`. Update `package.json` and `CHANGELOG.md` in a reviewed PR, and merge it after the normal checks pass. Then create and push an annotated tag matching the package version, for example `v0.1.0`:
+
+```bash
+git checkout main
+git pull
+git tag -a v0.1.0 -m "Release v0.1.0"
+git push origin v0.1.0
+```
+
+The Release workflow checks that the tagged commit is on `main`, the tag matches `package.json`, the changelog section exists, and `npm run check` passes. It then creates the GitHub Release from that changelog section. Do not tag a feature branch or reuse an existing version.
+
 ## 🗂️ Project structure
 
 ```text
