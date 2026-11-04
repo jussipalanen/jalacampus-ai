@@ -1,0 +1,16 @@
+Kuvitteellinen JalaCampus-korkeakoulu – IT-tuki opiskelijoille
+
+Käyttäjätunnus ja salasana
+Opiskelija saa korkeakoulun käyttäjätunnuksen opiskeluoikeuden alkaessa. Salasana on vaihdettava ensimmäisellä kirjautumiskerralla ja sen jälkeen kerran vuodessa. Unohtuneen salasanan voi palauttaa itsepalvelusivulla tekstiviestivahvistuksella. Jos puhelinnumeroa ei ole rekisteröity, salasanan voi palauttaa IT-tuen palvelupisteessä henkilöllisyystodistusta vastaan.
+
+Monivaiheinen tunnistautuminen
+Sähköpostiin ja oppimisympäristöön kirjaudutaan monivaiheisella tunnistautumisella. Tunnistautumissovelluksen voi ottaa käyttöön itsepalvelusivulla. Jos puhelin vaihtuu tai katoaa, opiskelijan on otettava yhteyttä IT-tukeen ennen uuden laitteen käyttöönottoa.
+
+Langaton verkko
+Kampuksella on kaksi langatonta verkkoa. Opiskelijat käyttävät verkkoa JalaCampus-Opiskelija, johon kirjaudutaan korkeakoulun käyttäjätunnuksella. Vierailijaverkko JalaCampus-Vieras ei vaadi kirjautumista, mutta sen nopeus on rajoitettu.
+
+Tulostaminen
+Kampuksen monitoimilaitteilla tulostetaan opiskelijakortilla. Jokaisella opiskelijalla on lukukausittain 200 sivun maksuton tulostuskiintiö. Kiintiön ylittävät tulosteet maksetaan tulostusjärjestelmän verkkosivulla.
+
+Yhteystiedot
+IT-tuen palvelupiste on päärakennuksen aulassa ja palvelee arkisin kello 8–16. Tukipyynnön voi jättää myös verkossa tukipalvelun lomakkeella, ja niihin vastataan yleensä yhden arkipäivän kuluessa.

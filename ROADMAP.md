@@ -33,17 +33,17 @@
 
 **Acceptance:** A synthetic test document can be uploaded and its extracted content previewed without persistence. Authentication and durable storage belong to a later milestone.
 
-## ⏭️ M2 — Database & embeddings (`feat/vector-index`)
+## ✅ M2 — Database & embeddings
 - [x] Draft a PostgreSQL/pgvector schema for documents, chunks and metadata (not deployed yet)
 - [x] pgvector extension and 768-dimension embedding storage with an HNSW cosine index
 - [x] Deterministic Node.js/TypeScript chunking with stable IDs
 - [x] Persist chunks with idempotent ingestion and a tracked migration runner (library only; no API yet)
 - [x] Free-tier Gemini embedding model (`gemini-embedding-2`) behind a swappable adapter; mocked in tests
-- [ ] Similarity search over embedded chunks and a sample-document ingestion command
+- [x] Similarity search over embedded chunks (`searchChunks`), synthetic Finnish sample corpus, and `db:ingest` / `db:search` commands
 - [x] Unit tests for chunk boundaries, Unicode and stable IDs
 - [x] Database integration tests with deterministic fixtures (run in CI against pgvector)
 
-**Acceptance:** Ingested sample text is searchable by semantic similarity; repeated ingestion doesn't duplicate chunks.
+**Acceptance:** Ingested sample text is searchable by semantic similarity; repeated ingestion doesn't duplicate chunks. ✅ Met for the command-line tools; no HTTP API or UI uses search yet.
 
 ## ⏭️ M3 — RAG chat (`feat/rag-chat`)
 - [ ] Retrieval service with source IDs and relevance metadata
