@@ -4,6 +4,12 @@ Changes are recorded by release version. Update the Unreleased section in featur
 
 ## [Unreleased]
 
+### Added
+
+- Tracked PostgreSQL migration runner (`npm run db:migrate`).
+- Transactional, idempotent ingestion of chunked documents; embeddings are not computed yet.
+- Database integration tests, run in CI against a disposable pgvector service.
+
 ## [0.1.0] - 2026-11-03
 
 ### Added
