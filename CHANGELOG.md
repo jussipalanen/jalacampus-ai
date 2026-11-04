@@ -12,6 +12,10 @@ Changes are recorded by release version. Update the Unreleased section in featur
 - Gemini embedding adapter (`gemini-embedding-2`, 768 dimensions) and `npm run db:embed` for storing chunk embeddings.
 - Semantic chunk search (`searchChunks`) with traceable chunk and document IDs, a synthetic Finnish sample corpus in `data/samples/`, and `npm run db:ingest` / `npm run db:search` commands.
 
+### Fixed
+
+- Overlapping chunks now start on a word boundary instead of mid-word. Chunk text and IDs change for multi-chunk documents: databases ingested earlier must be emptied (`TRUNCATE documents CASCADE`) and re-ingested.
+
 ## [0.1.0] - 2026-11-03
 
 ### Added
