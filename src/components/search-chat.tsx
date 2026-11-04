@@ -103,8 +103,8 @@ function ResultCard({ result }: { result: SearchResult }) {
       <p className="break-all text-sm font-medium text-slate-900">{result.sourceName} <span className="font-normal text-slate-500">· kohta {result.ordinal + 1}</span></p>
       <p className="text-xs text-slate-500">Samankaltaisuus {formatScore(result.score)}</p>
     </div>
-    {/* The collapsed preview joins lines so blank lines don't use up the four visible lines. */}
-    <p className={`mt-2 text-sm leading-6 text-slate-700 ${expanded ? "whitespace-pre-line" : "line-clamp-4"}`}>{expanded ? result.text : result.text.replace(/\s+/g, " ")}</p>
+    {/* The collapsed preview joins lines with " · " so blank lines don't use up the four visible lines. */}
+    <p className={`mt-2 text-sm leading-6 text-slate-700 ${expanded ? "whitespace-pre-line" : "line-clamp-4"}`}>{expanded ? result.text : result.text.replace(/\s*\n\s*/g, " · ").replace(/\s+/g, " ")}</p>
     <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
       <button type="button" onClick={() => setExpanded(!expanded)} aria-expanded={expanded} className="text-xs font-medium text-blue-700 hover:underline">{expanded ? "Näytä vähemmän" : "Näytä koko kohta"}</button>
       <span className="font-mono text-[11px] text-slate-400" title={result.chunkId}>Tunniste {result.chunkId.slice(0, 12)}</span>

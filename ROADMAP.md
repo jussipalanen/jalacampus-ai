@@ -46,12 +46,13 @@
 **Acceptance:** Ingested sample text is searchable by semantic similarity; repeated ingestion doesn't duplicate chunks. ✅ Met for the command-line tools; no HTTP API or UI uses search yet.
 
 ## ⏭️ M3 — RAG chat (`feat/rag-chat`)
-- [ ] Retrieval service with source IDs and relevance metadata
+- [x] Retrieval with source IDs and similarity scores (`searchChunks`), shown as search results in the local UI
+- [ ] Server-to-server search endpoint for the AI service
 - [ ] Add a server-to-server adapter for `jussi-aibot` and a campus-specific agent configuration; keep the adapter mockable in tests
 - [ ] Keep `jussi-aibot` credentials server-side; apply rate limits, input validation and timeouts at the Node.js API boundary
 - [ ] Prompt injection boundaries and grounded-answer instructions
 - [ ] Verify retrieval from ingested campus documents with stable source IDs; show Finnish answers with visible, traceable citations and an honest fallback on no evidence
-- [ ] Mocked automated tests; basic evaluation set for Finnish prompts
+- [ ] Mocked automated tests; basic evaluation set for Finnish prompts, including questions on a covered topic whose answer is **not** in the documents (e.g. "Mistä kirjasto löytyy?" scored 0.72 against the library guide). A similarity threshold alone cannot detect these, so the answer step must decline them.
 
 **Acceptance:** The assistant references actual retrieved source documents, refuses to invent citations, and handles API failures safely.
 

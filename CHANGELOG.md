@@ -4,6 +4,8 @@ Changes are recorded by release version. Update the Unreleased section in featur
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-04
+
 ### Added
 
 - Tracked PostgreSQL migration runner (`npm run db:migrate`).
@@ -15,7 +17,15 @@ Changes are recorded by release version. Update the Unreleased section in featur
 
 ### Fixed
 
+- npm scripts no longer print Node.js module-type warnings (`"type": "module"`), and config files no longer trigger lint warnings.
+- Keyboard focus uses the theme's blue outline, and collapsed search previews separate lines with " · ".
 - Overlapping chunks now start on a word boundary instead of mid-word. Chunk text and IDs change for multi-chunk documents: databases ingested earlier must be emptied (`TRUNCATE documents CASCADE`) and re-ingested.
+
+### Limitations
+
+- Search results are passages, not AI-generated answers; AI chat and RAG are not implemented.
+- Search runs only where `DATABASE_URL` and `GEMINI_API_KEY` are set; the deployed demo has no database.
+- Ingestion is command-line only and supports UTF-8 `.txt` files, not PDF.
 
 ## [0.1.0] - 2026-11-03
 
@@ -23,6 +33,7 @@ Changes are recorded by release version. Update the Unreleased section in featur
 
 - Finnish-language, responsive Next.js UI scaffold with a professional light theme.
 - Session-only PDF and UTF-8 text document preview with upload validation and synthetic tests.
+- Draft PostgreSQL/pgvector schema and a deterministic, Unicode-safe text chunker with stable IDs (not connected to a database in this release).
 - Project guidance, roadmap, CI checks, Vercel deployment documentation, and tag-based GitHub releases.
 
 ### Limitations
