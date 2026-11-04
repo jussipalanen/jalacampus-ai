@@ -8,7 +8,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?logo=tailwindcss&logoColor=white)
 ![UI language](https://img.shields.io/badge/UI-Suomi-2563EB)
-![Project stage](https://img.shields.io/badge/Stage-UI_scaffold-F59E0B)
+![Project stage](https://img.shields.io/badge/Stage-Local_search_demo-F59E0B)
 
 *Designed and maintained by **Jussi Alanen** · [juzapala@gmail.com](mailto:juzapala@gmail.com)*
 
