@@ -11,6 +11,7 @@ Changes are recorded by release version. Update the Unreleased section in featur
 - Database integration tests, run in CI against a disposable pgvector service.
 - Gemini embedding adapter (`gemini-embedding-2`, 768 dimensions) and `npm run db:embed` for storing chunk embeddings.
 - Semantic chunk search (`searchChunks`) with traceable chunk and document IDs, a synthetic Finnish sample corpus in `data/samples/`, and `npm run db:ingest` / `npm run db:search` commands.
+- Local UI search: `POST /api/search` and a Finnish Keskustelu view that shows matching source passages, clearly labelled as search results rather than AI answers. Disabled unless `DATABASE_URL` and `GEMINI_API_KEY` are set.
 
 ### Fixed
 

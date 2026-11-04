@@ -7,7 +7,9 @@ test("UI declares Finnish language", () => {
   assert.match(source, /<html lang="fi">/);
 });
 
-test("AI demo does not claim implemented RAG", () => {
-  const source = readFileSync(new URL("../src/app/page.tsx", import.meta.url), "utf8");
-  assert.match(source, /tekoälyhaku toteutetaan seuraavassa vaiheessa/);
+test("search UI does not present results as AI answers", () => {
+  const source = readFileSync(new URL("../src/components/search-chat.tsx", import.meta.url), "utf8");
+  assert.match(source, /Tekoälyn muotoilemat vastaukset toteutetaan seuraavassa vaiheessa/);
+  assert.match(source, /Nämä ovat hakutuloksia, eivät tekoälyn vastaus/);
+  assert.match(source, /Kysymys lähetetään Google Gemini -palveluun/);
 });
