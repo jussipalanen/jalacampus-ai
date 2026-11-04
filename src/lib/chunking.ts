@@ -42,7 +42,13 @@ export function chunkDocument(input: string, size = CHUNK_SIZE, overlap = CHUNK_
       chunks.push({ id: hashText(`${documentId}\0${ordinal}\0${part}`), documentId, ordinal, text: part });
     }
     if (end === characters.length) break;
-    start = Math.max(start + 1, end - overlap);
+    // Start the overlap at the nearest word boundary so excerpts never begin mid-word.
+    // Text without whitespace in the overlap keeps the plain character offset.
+    let next = Math.max(start + 1, end - overlap);
+    for (let i = next; i < end; i++) {
+      if (/\s/u.test(characters[i - 1])) { next = i; break; }
+    }
+    start = next;
   }
   return { documentId, contentHash, chunks };
 }

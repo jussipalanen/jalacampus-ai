@@ -25,3 +25,22 @@ test("empty input and invalid chunk parameters are rejected", () => {
   assert.throws(() => chunkDocument("hello", 10, 10), RangeError);
   assert.throws(() => chunkDocument("hello", 1, 0), RangeError);
 });
+
+test("overlapping chunks start and end on word boundaries", () => {
+  // Unique words of varying length make a fixed-width overlap land mid-word.
+  const words = Array.from({ length: 400 }, (_, i) => `sana${"x".repeat(i % 7)}${i}`);
+  const text = words.join(" ");
+  const known = new Set(words);
+  const { chunks } = chunkDocument(text, 120, 30);
+  assert.ok(chunks.length > 5);
+  let previousEnd = 0;
+  for (const [i, chunk] of chunks.entries()) {
+    const tokens = chunk.text.split(" ");
+    assert.ok(known.has(tokens[0]), `chunk ${i} starts mid-word: ${tokens[0]}`);
+    assert.ok(known.has(tokens.at(-1)), `chunk ${i} ends mid-word: ${tokens.at(-1)}`);
+    const start = text.indexOf(chunk.text);
+    if (i > 0) assert.ok(start < previousEnd, `chunk ${i} does not overlap the previous chunk`);
+    previousEnd = start + chunk.text.length;
+  }
+  assert.equal(previousEnd, text.length);
+});
