@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { DocumentLibrary } from "@/components/document-library";
-import { BookOpen, CheckCircle2, ChevronRight, FileText, GraduationCap, Menu, MessageCircle, Search, Send, Settings2, ShieldCheck, Sparkles, X } from "lucide-react";
+import { SearchChat } from "@/components/search-chat";
+import { BookOpen, ChevronRight, FileText, GraduationCap, Menu, MessageCircle, Search, Settings2, ShieldCheck, X } from "lucide-react";
 
 type NavItem = "Keskustelu" | "Dokumentit" | "Kurssit" | "Asetukset";
 
@@ -12,14 +13,10 @@ const menu = [
   { label: "Kurssit" as const, icon: BookOpen },
   { label: "Asetukset" as const, icon: Settings2 },
 ];
-const suggestions = ["Mistä löydän opinnäytetyön ohjeet?", "Miten kurssille ilmoittaudutaan?", "Miten opiskelijan tietoja käsitellään?"];
 
 export default function Home() {
   const [tab, setTab] = useState<NavItem>("Keskustelu");
   const [mobileMenu, setMobileMenu] = useState(false);
-  const [draft, setDraft] = useState("");
-  const [question, setQuestion] = useState("");
-  const ask = (value: string) => { if (value.trim()) { setQuestion(value.trim()); setDraft(""); } };
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
@@ -39,13 +36,8 @@ export default function Home() {
         </aside>
         <main className="min-w-0">
           <div hidden={tab !== "Dokumentit"}><DocumentLibrary /></div>
-          {tab === "Dokumentit" ? null : tab === "Keskustelu" ? <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-100 px-6 py-6 sm:px-9"><div className="flex items-center gap-2 text-sm font-medium text-blue-700"><Sparkles size={17}/> Tekoälyavustaja</div><h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">Miten voin auttaa?</h1><p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">Etsi korkeakoulun ohjeita ja kurssitietoja yhdestä paikasta. Tämä on käyttöliittymädemo – tekoälyhaku toteutetaan seuraavassa vaiheessa.</p></div>
-            <div className="min-h-80 px-6 py-7 sm:px-9">
-              {!question ? <><p className="mb-4 text-sm font-medium text-slate-700">Kokeile esimerkkikysymystä</p><div className="grid gap-3 sm:grid-cols-2">{suggestions.map(s => <button key={s} type="button" onClick={() => ask(s)} className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 p-4 text-left text-sm text-slate-700 transition hover:border-blue-300 hover:bg-blue-50/40">{s}<ChevronRight size={16} className="shrink-0 text-blue-600" /></button>)}</div></> : <div className="space-y-5"><div className="ml-auto max-w-lg rounded-2xl rounded-tr-sm bg-blue-600 p-4 text-sm leading-6 text-white">{question}</div><div className="max-w-xl rounded-2xl rounded-tl-sm border border-slate-200 bg-slate-50 p-4"><div className="mb-2 flex items-center gap-2 text-sm font-semibold"><Sparkles size={16} className="text-blue-600"/> JalaCampus AI</div><p className="text-sm leading-6 text-slate-600">Tämä on käyttöliittymän esikatselu. Varsinainen AI-vastaus, RAG-haku ja lähdeviitteet otetaan käyttöön myöhemmässä kehitysvaiheessa.</p><div className="mt-3 flex items-center gap-2 text-xs text-amber-700"><CheckCircle2 size={14}/> Ei keksittyjä lähteitä tai vastauksia</div></div></div>}
-            </div>
-            <form onSubmit={e => {e.preventDefault();ask(draft);}} className="border-t border-slate-100 px-6 py-5 sm:px-9"><label htmlFor="question" className="sr-only">Kirjoita kysymys</label><div className="flex gap-2 rounded-xl border border-slate-200 bg-white p-2 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100"><input id="question" value={draft} onChange={e => setDraft(e.target.value)} placeholder="Kirjoita kysymyksesi..." className="min-w-0 flex-1 px-3 text-sm outline-none placeholder:text-slate-400"/><button disabled={!draft.trim()} type="submit" aria-label="Lähetä kysymys" className="rounded-lg bg-blue-600 p-3 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"><Send size={17}/></button></div><p className="mt-2 text-xs text-slate-400">Esittelyversio ei lähetä kysymyksiä ulkoiseen palveluun.</p></form>
-          </section> : <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm sm:p-10"><span className="mb-4 inline-flex rounded-xl bg-blue-50 p-3 text-blue-600">{tab === "Kurssit" ? <BookOpen/> : <Settings2/>}</span><h1 className="text-2xl font-semibold">{tab}</h1><p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">Tämä osio kuuluu projektin seuraaviin kehitysvaiheisiin. Toteutus tehdään omassa feature-haarassa ja tarkistetaan pull requestissa.</p><div className="mt-6 inline-flex items-center gap-2 rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-600"><Search size={16}/> Tulossa ROADMAP.md:n mukaisesti</div></section>}
+          <div hidden={tab !== "Keskustelu"}><SearchChat /></div>
+          {tab === "Dokumentit" || tab === "Keskustelu" ? null : <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm sm:p-10"><span className="mb-4 inline-flex rounded-xl bg-blue-50 p-3 text-blue-600">{tab === "Kurssit" ? <BookOpen/> : <Settings2/>}</span><h1 className="text-2xl font-semibold">{tab}</h1><p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">Tämä osio kuuluu projektin seuraaviin kehitysvaiheisiin. Toteutus tehdään omassa feature-haarassa ja tarkistetaan pull requestissa.</p><div className="mt-6 inline-flex items-center gap-2 rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-600"><Search size={16}/> Tulossa ROADMAP.md:n mukaisesti</div></section>}
           <footer className="mt-5 text-center text-xs text-slate-400">JalaCampus AI · Demo · Jussi Alanen</footer>
         </main>
       </div>

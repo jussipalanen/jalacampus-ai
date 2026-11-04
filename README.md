@@ -21,7 +21,7 @@
 JalaCampus AI is a university-oriented demo that aims to make study guides, course information and campus instructions easier to find. The final concept combines a **Finnish-language chat interface**, **retrieval-augmented generation (RAG)**, **PostgreSQL + pgvector**, and an exchangeable LLM provider.
 
 > [!IMPORTANT]
-> **Current status:** This repository includes a responsive UI and a session-only PDF/TXT document preview. Server-side PostgreSQL ingestion, Gemini chunk embeddings and semantic search exist as tested command-line tools, but the web app does not use them yet. AI chat and RAG answers **are planned**, not implemented. The interface deliberately avoids fabricated answers and citations.
+> **Current status:** This repository includes a responsive UI and a session-only PDF/TXT document preview. Server-side PostgreSQL ingestion, Gemini chunk embeddings and semantic search work as tested command-line tools, and in local development the **Keskustelu** view shows matching source passages. AI-generated answers and RAG **are planned**, not implemented, and the deployed demo has no database. The interface deliberately avoids fabricated answers and citations.
 
 ### 🧭 Demo features
 
@@ -30,7 +30,7 @@ JalaCampus AI is a university-oriented demo that aims to make study guides, cour
 | 💬 | Finnish chat UI | ✅ UI scaffold |
 | 📄 | PDF/TXT document preview | ✅ Session-only demo |
 | 🗃️ | Persistent document catalog & ingestion | 🗓️ Planned |
-| 🔎 | Semantic search over sample documents | ✅ Command-line only |
+| 🔎 | Semantic search over sample documents | ✅ CLI and local UI (search results, no AI answer) |
 | 🤖 | Grounded AI answers (RAG) | 🗓️ Planned |
 | 📚 | Course information API | 🗓️ Planned |
 | 🛡️ | Grounded answers and source citations | 🗓️ Planned |
@@ -83,7 +83,7 @@ The **Dokumentit** tab accepts synthetic or licensed public PDF and UTF-8 TXT sa
 
 ## 🗃️ Vector storage foundation
 
-M2 adds a PostgreSQL/pgvector schema in `db/migrations/`, a deterministic Unicode-safe text chunker, and a server-side ingestion module (`src/lib/ingestion.ts`). Ingestion stores a document and its chunks in one transaction. The document ID is the SHA-256 of the normalized text, so ingesting the same content again changes nothing. These are command-line tools only: there is **no ingestion or search API or UI yet**, and the deployed app does not use a database. 
+M2 adds a PostgreSQL/pgvector schema in `db/migrations/`, a deterministic Unicode-safe text chunker, and a server-side ingestion module (`src/lib/ingestion.ts`). Ingestion stores a document and its chunks in one transaction. The document ID is the SHA-256 of the normalized text, so ingesting the same content again changes nothing. Ingestion is command-line only. Search is also available in the local UI (see below); the deployed app has no database. 
 Chunk embeddings use Google's **`gemini-embedding-2`** model on the free Gemini API tier, at 768 dimensions with an HNSW cosine index (`db/migrations/002_chunk_embeddings.sql`). The adapter in `src/lib/embeddings.ts` sits behind a small `Embedder` interface so another provider can replace it. `npm run db:embed` embeds every chunk that has no embedding, or one from a different model, and can be re-run safely. Each vector records its model; changing the model or dimension needs a new migration and re-embedding.
 
 ### Try semantic search locally
@@ -97,6 +97,10 @@ npm run db:search -- "Unohdin salasanani, mitä teen?"
 ```
 
 `db:ingest` accepts UTF-8 `.txt` files and directories (PDF ingestion is not supported yet) and embeds new chunks when a key is set. `db:search` prints the closest chunks with their cosine score, source document, chunk number and chunk ID. Scores rank results but are not calibrated relevance probabilities: an unrelated question still returns its nearest chunks, so the M3 chat must apply its own evidence threshold. `searchChunks` in `src/lib/search.ts` only compares vectors produced by the same embedding model.
+
+### Search in the local UI
+
+Run `npm run dev` with the same `.env` and ask a question in the **Keskustelu** view. `POST /api/search` returns the closest chunks, which the UI shows as source passages with document, chunk number, similarity and chunk ID. They are clearly labelled as **search results, not an AI answer**. The route is disabled with a Finnish notice unless both `DATABASE_URL` and `GEMINI_API_KEY` are set, so deployments without them never call Gemini. It validates input (1–500 characters, 4 KB body) and applies a simple in-memory limit of 20 searches per minute per client. Before any public deployment it needs a shared or platform-level rate limit.
 
 `GEMINI_API_KEY` is read only on the server and must never be exposed through a `NEXT_PUBLIC_` variable. Free-tier rate limits are low and may change; the adapter retries rate-limit and server errors with backoff. Embedding sends chunk text to Google, and free-tier content may be used to improve Google's products, so **only embed synthetic or appropriately licensed public documents**. Tests and CI use a deterministic fake embedder and never call the Gemini API.
 
