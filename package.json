@@ -13,6 +13,8 @@
     "test": "node --experimental-strip-types --test --test-concurrency=1 tests/*.test.mjs",
     "db:migrate": "node --experimental-strip-types --env-file-if-exists=.env scripts/migrate.ts",
     "db:embed": "node --experimental-strip-types --env-file-if-exists=.env scripts/embed.ts",
+    "db:ingest": "node --experimental-strip-types --env-file-if-exists=.env scripts/ingest.ts",
+    "db:search": "node --experimental-strip-types --env-file-if-exists=.env scripts/search.ts",
     "check": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {

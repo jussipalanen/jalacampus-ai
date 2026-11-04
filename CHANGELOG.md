@@ -7,9 +7,10 @@ Changes are recorded by release version. Update the Unreleased section in featur
 ### Added
 
 - Tracked PostgreSQL migration runner (`npm run db:migrate`).
-- Transactional, idempotent ingestion of chunked documents; embeddings are not computed yet.
+- Transactional, idempotent ingestion of chunked documents.
 - Database integration tests, run in CI against a disposable pgvector service.
-- Gemini embedding adapter (`gemini-embedding-2`, 768 dimensions) and `npm run db:embed` for storing chunk embeddings; similarity search is not available yet.
+- Gemini embedding adapter (`gemini-embedding-2`, 768 dimensions) and `npm run db:embed` for storing chunk embeddings.
+- Semantic chunk search (`searchChunks`) with traceable chunk and document IDs, a synthetic Finnish sample corpus in `data/samples/`, and `npm run db:ingest` / `npm run db:search` commands.
 
 ## [0.1.0] - 2026-11-03
 
