@@ -72,7 +72,9 @@ npm test
 npm run build
 ```
 
-`.env.example` documents **future** configuration; no API key is required to run the UI scaffold.
+Database integration tests in `tests/ingestion.db.test.mjs` are skipped unless `TEST_DATABASE_URL` is set. They drop and truncate tables, so they refuse to run unless the database name ends in `_test`. With the local Docker service running, create one with `docker compose exec db createdb -U jalacampus jalacampus_test`. CI always runs them against a disposable pgvector container.
+
+`.env.example` documents local database settings and **future** AI configuration; no API key or database is required to run the UI scaffold.
 
 ## 📄 Document preview
 
@@ -80,11 +82,13 @@ The **Dokumentit** tab accepts synthetic or licensed public PDF and UTF-8 TXT sa
 
 ## 🗃️ Vector storage foundation
 
-M2 begins with a PostgreSQL/pgvector migration in `db/migrations/001_documents.sql` and a deterministic Unicode-safe text chunker. The migration is **not applied automatically** and no database, ingestion API, embeddings, or semantic search is available yet. Its vector column intentionally has no fixed dimension until an embedding model is chosen.
+M2 adds a PostgreSQL/pgvector schema in `db/migrations/`, a deterministic Unicode-safe text chunker, and a server-side ingestion module (`src/lib/ingestion.ts`). Ingestion stores a document and its chunks in one transaction. The document ID is the SHA-256 of the normalized text, so ingesting the same content again changes nothing. Ingestion is library code only: there is **no ingestion API, UI, embeddings, or semantic search yet**, and the deployed app does not use a database. The vector column intentionally has no fixed dimension until an embedding model is chosen.
+
+Apply pending migrations with `npm run db:migrate`. It reads `DATABASE_URL` (from the environment or a local `.env`) and records applied files in `schema_migrations`.
 
 ### Local PostgreSQL with Docker
 
-Run `./dev up` to start the local PostgreSQL/pgvector service and `./dev down` to stop it. Use `./dev restart` to force-recreate the service, `./dev status` to check it, or `./dev logs` to follow its logs. The named volume keeps data between restarts; `docker compose down -v` also deletes local database data. Then apply `db/migrations/001_documents.sql` using `psql`. Set `POSTGRES_PASSWORD` in a local, untracked environment file before starting the container. This database is for development only; Vercel needs a separately provisioned PostgreSQL service.
+Run `./dev up` to start the local PostgreSQL/pgvector service and `./dev down` to stop it. Use `./dev restart` to force-recreate the service, `./dev status` to check it, or `./dev logs` to follow its logs. The named volume keeps data between restarts; `docker compose down -v` also deletes local database data. Then run `npm run db:migrate`. Set `POSTGRES_PASSWORD` in a local, untracked environment file before starting the container. This database is for development only; Vercel needs a separately provisioned PostgreSQL service.
 
 ## ☁️ Vercel deployment
 
