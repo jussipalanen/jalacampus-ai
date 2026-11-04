@@ -43,7 +43,7 @@ describe("PostgreSQL ingestion", { skip: !url && "TEST_DATABASE_URL is not set" 
 
   test("migrations apply once and are tracked", async () => {
     await client.query("DROP TABLE IF EXISTS document_chunks, documents, schema_migrations");
-    assert.deepEqual(await migrate(client), ["001_documents.sql"]);
+    assert.deepEqual(await migrate(client), ["001_documents.sql", "002_chunk_embeddings.sql"]);
     assert.deepEqual(await migrate(client), []);
     const { rows } = await client.query("SELECT extname FROM pg_extension WHERE extname = 'vector'");
     assert.equal(rows.length, 1);

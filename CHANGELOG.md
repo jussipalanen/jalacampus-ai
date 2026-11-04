@@ -9,6 +9,7 @@ Changes are recorded by release version. Update the Unreleased section in featur
 - Tracked PostgreSQL migration runner (`npm run db:migrate`).
 - Transactional, idempotent ingestion of chunked documents; embeddings are not computed yet.
 - Database integration tests, run in CI against a disposable pgvector service.
+- Gemini embedding adapter (`gemini-embedding-2`, 768 dimensions) and `npm run db:embed` for storing chunk embeddings; similarity search is not available yet.
 
 ## [0.1.0] - 2026-11-03
 

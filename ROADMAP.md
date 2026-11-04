@@ -35,10 +35,11 @@
 
 ## ⏭️ M2 — Database & embeddings (`feat/vector-index`)
 - [x] Draft a PostgreSQL/pgvector schema for documents, chunks and metadata (not deployed yet)
-- [ ] pgvector extension and embedding storage
+- [x] pgvector extension and 768-dimension embedding storage with an HNSW cosine index
 - [x] Deterministic Node.js/TypeScript chunking with stable IDs
 - [x] Persist chunks with idempotent ingestion and a tracked migration runner (library only; no API yet)
-- [ ] Free/local embedding model initially; configurable adapter
+- [x] Free-tier Gemini embedding model (`gemini-embedding-2`) behind a swappable adapter; mocked in tests
+- [ ] Similarity search over embedded chunks and a sample-document ingestion command
 - [x] Unit tests for chunk boundaries, Unicode and stable IDs
 - [x] Database integration tests with deterministic fixtures (run in CI against pgvector)
 
