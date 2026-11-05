@@ -4,13 +4,16 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 case "${1:-}" in
-  up) docker compose up -d ;;
+  up) docker compose up -d --build ;;           # database + Next.js dev server
+  db) docker compose up -d db ;;                # database only, for `npm run dev` on the host
   down) docker compose down ;;
-  restart) docker compose up -d --force-recreate ;;
+  restart) docker compose up -d --build --force-recreate ;;
   status) docker compose ps ;;
   logs) docker compose logs -f ;;
+  shell) docker compose exec web sh ;;
+  npm) shift; docker compose exec web npm "$@" ;; # e.g. ./dev npm run db:ingest -- data/samples
   *)
-    echo "Usage: ./dev {up|down|restart|status|logs}" >&2
+    echo "Usage: ./dev {up|db|down|restart|status|logs|shell|npm <args>}" >&2
     exit 2
     ;;
 esac

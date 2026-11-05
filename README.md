@@ -106,9 +106,36 @@ Run `npm run dev` with the same `.env` and ask a question in the **Keskustelu** 
 
 Apply pending migrations with `npm run db:migrate`. It reads `DATABASE_URL` (from the environment or a local `.env`) and records applied files in `schema_migrations`.
 
-### Local PostgreSQL with Docker
+### Local development with Docker
 
-Run `./dev up` to start the local PostgreSQL/pgvector service and `./dev down` to stop it. Use `./dev restart` to force-recreate the service, `./dev status` to check it, or `./dev logs` to follow its logs. The named volume keeps data between restarts; `docker compose down -v` also deletes local database data. Then run `npm run db:migrate`. Set `POSTGRES_PASSWORD` in a local, untracked environment file before starting the container. This database is for development only; Vercel needs a separately provisioned PostgreSQL service.
+`compose.yaml` runs two development services:
+
+| Service | What it is | Address |
+| --- | --- | --- |
+| `db` | PostgreSQL 16 + pgvector | `localhost:5432` from the host, `db:5432` from containers |
+| `web` | Next.js dev server with hot reload | http://localhost:3000 (`WEB_PORT` changes the host port) |
+
+Put at least `POSTGRES_PASSWORD` in an untracked `.env` (see `.env.example`). Add `GEMINI_API_KEY` and `DATABASE_URL` for search. The `web` container reads the same `.env` but always connects to the database as `db`.
+
+| Command | Does |
+| --- | --- |
+| `./dev up` | Start the database and the dev server |
+| `./dev db` | Start only the database, for running `npm run dev` on the host instead |
+| `./dev down` | Stop everything (data is kept) |
+| `./dev restart` | Rebuild and recreate the services |
+| `./dev status` / `./dev logs` | Show state / follow logs |
+| `./dev shell` | Open a shell in the `web` container |
+| `./dev npm <args>` | Run npm in the `web` container, e.g. `./dev npm run db:migrate` or `./dev npm run db:ingest -- data/samples` |
+
+First run:
+
+```bash
+./dev up
+./dev npm run db:migrate
+./dev npm run db:ingest -- data/samples
+```
+
+The source is bind-mounted, so edits reload in the browser. Dependencies and `.next` live in named volumes: the container installs from `package-lock.json` with `npm ci`, and only again when the lockfile changes. It runs as the non-root `node` user (uid 1000), so files it writes into the repo belong to you on most Linux and WSL setups. `docker compose down -v` also deletes the database and dependency volumes. These services are for development only; Vercel builds and hosts production and needs a separately provisioned PostgreSQL service.
 
 ## ☁️ Vercel deployment
 
@@ -139,6 +166,8 @@ src/app/             Next.js app router and Finnish UI
 .github/             Pull request template and CODEOWNERS
 README.md            Project overview
 ROADMAP.md           Planned increments and acceptance criteria
+compose.yaml, dev     Local Docker services (database, dev server) and helper commands
+docker/web/          Dev-server image and start script
 docs/                Design docs (M3 grounded-answer plan)
 AGENTS.md            Shared engineering instructions
 CLAUDE.md            Claude Code entrypoint importing AGENTS.md
