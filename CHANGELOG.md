@@ -4,6 +4,14 @@ Changes are recorded by release version. Update the Unreleased section in featur
 
 ## [Unreleased]
 
+### Added
+
+- Next.js dev server as a `web` service in Docker Compose: hot reload, dependencies installed from `package-lock.json`, runs as the non-root `node` user and reaches the database as `db`. New `./dev db`, `./dev shell` and `./dev npm <args>` commands.
+
+### Changed
+
+- `package-lock.json` is now committed, so CI, Docker and local installs use the same dependency tree.
+
 ## [0.2.0] - 2026-11-04
 
 ### Added
