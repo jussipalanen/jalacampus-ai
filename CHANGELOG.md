@@ -4,17 +4,28 @@ Changes are recorded by release version. Update the Unreleased section in featur
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-05
+
+Grounded Finnish answers, locally and on the live demo.
+
 ### Added
 
 - Finnish evaluation set (`data/eval/questions.json`, 22 cases: answerable, out of scope, answer missing, prompt injection) and `npm run eval`, which runs it through the `/api/chat` flow against real Gemini and jussi-aibot and suggests a similarity floor. Results are in the README.
 - Keskustelu shows grounded AI answers from `POST /api/chat`. The answer card is labelled as an AI answer to verify, `[n]` links jump to numbered source passages, and the other passages are listed separately. There are honest *no answer* and *unavailable* states, and the view falls back to search results when answers aren't configured. The answer is rendered as plain text.
-- `POST /api/chat`: grounded Finnish answers through jussi-aibot `POST /v1/grounded-answer`, with a similarity floor, a second citation check (any unknown citation ID → `no_evidence`) and Finnish fallbacks (`no_evidence`, `unavailable` with the found passages). Server-side client in `src/lib/grounded-answer.ts`; disabled unless `DATABASE_URL`, `GEMINI_API_KEY`, `AIBOT_URL` and `AIBOT_API_KEY` are set. No UI yet.
+- `POST /api/chat`: grounded Finnish answers through jussi-aibot `POST /v1/grounded-answer`, with a similarity floor, a second citation check (any unknown citation ID → `no_evidence`) and Finnish fallbacks (`no_evidence`, `unavailable` with the found passages). Server-side client in `src/lib/grounded-answer.ts`; disabled unless `DATABASE_URL`, `GEMINI_API_KEY`, `AIBOT_URL` and `AIBOT_API_KEY` are set.
 - Next.js dev server as a `web` service in Docker Compose: hot reload, dependencies installed from `package-lock.json`, runs as the non-root `node` user and reaches the database as `db`. New `./dev db`, `./dev shell` and `./dev npm <args>` commands.
+- Production on Vercel (https://jalacampus-ai.vercel.app) with a Neon PostgreSQL database, the jussi-aibot `jalacampus-prod` client and a Vercel Firewall rate-limit rule for the AI endpoints (log mode).
 
 ### Changed
 
 - Default `SIMILARITY_FLOOR` raised from 0.60 to 0.64, based on the evaluation.
 - `package-lock.json` is now committed, so CI, Docker and local installs use the same dependency tree.
+
+### Limitations
+
+- Ingestion is command-line only and supports UTF-8 `.txt` files; there is no admin upload.
+- The evaluation set is small (22 synthetic cases). Gemini's free tier is sometimes overloaded, which shows as "unavailable".
+- Rate limiting in the app is per instance and in memory; production relies on the Vercel Firewall rule and the jussi-aibot client cap.
 
 ## [0.2.0] - 2026-11-04
 

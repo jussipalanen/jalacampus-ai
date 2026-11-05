@@ -47,7 +47,7 @@ Agreed in [jussi-aibot PR #34](https://github.com/jussipalanen/jussi-aibot/pull/
 
 **Acceptance:** Ingested sample text is searchable by semantic similarity; repeated ingestion doesn't duplicate chunks. ✅ Met for the command-line tools; no HTTP API or UI uses search yet.
 
-## ⏭️ M3 — Grounded answers (plan: [`docs/m3-rag-plan.md`](docs/m3-rag-plan.md))
+## ✅ M3 — Grounded answers (plan: [`docs/m3-rag-plan.md`](docs/m3-rag-plan.md))
 - [x] Retrieval with source IDs and similarity scores (`searchChunks`), shown as search results in the local UI
 - [x] Agree the answer contract with `jussi-aibot` (`POST /v1/grounded-answer`; jussi-aibot PR #34)
 - [x] `jussi-aibot`: endpoint, `grounded_answer` client permission, generation with citation mapping and prompt-injection tests (jussi-aibot PR #35); Cloud Run client config (jussi-aibot PR #36)
@@ -55,7 +55,7 @@ Agreed in [jussi-aibot PR #34](https://github.com/jussipalanen/jussi-aibot/pull/
 - [x] Keskustelu answer card with `[n]` citations linked to the source passages; honest `no_evidence` and "unavailable" states
 - [x] Finnish evaluation set (`npm run eval`): answerable, out-of-scope, on-topic-but-missing (e.g. "Mistä kirjasto löytyy?" scored 0.72) and prompt-injection cases; similarity floor set to 0.64 from the results (22/22 after re-running one Gemini-overload failure)
 
-**Acceptance:** The assistant references actual retrieved source documents, refuses to invent citations, and handles API failures safely.
+**Acceptance:** The assistant references actual retrieved source documents, refuses to invent citations, and handles API failures safely. ✅ Met locally and in production (https://jalacampus-ai.vercel.app: Neon PostgreSQL, jussi-aibot `jalacampus-prod` client, Vercel Firewall rule in log mode).
 
 ## ⏭️ M4 — Course service (`feat/course-catalog`)
 - [ ] Minimal REST API serving synthetic course data
