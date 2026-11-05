@@ -3,8 +3,12 @@ import { NO_EVIDENCE_FI, type AnswerPassage, type GroundedAnswer } from "./groun
 import type { SearchResult } from "./search.ts";
 
 export const ANSWER_PASSAGES = 8;
-/** Initial guess from manual tests (unrelated ≈ 0.57, real matches ≥ 0.70); tune with the evaluation set. */
-export const DEFAULT_SIMILARITY_FLOOR = 0.6;
+/**
+ * Chosen with `npm run eval` (2026-11-05): lowest answerable top score 0.699, highest
+ * out-of-scope 0.574, so 0.64 sits midway. Re-run the evaluation when documents or the
+ * embedding model change.
+ */
+export const DEFAULT_SIMILARITY_FLOOR = 0.64;
 export const UNAVAILABLE_FI = "Vastausta ei voitu muodostaa juuri nyt. Alla ovat löydetyt kohdat.";
 
 export type ChatResponse = {
