@@ -14,15 +14,17 @@
 ## Architecture plan
 
 - Build the JalaCampus backend in Node.js/TypeScript, starting with Next.js server-side API routes. Keep document storage, validation and retrieval under JalaCampus control.
-- Add the existing [jussi-aibot](https://github.com/jussipalanen/jussi-aibot) Python/FastAPI service in M3 through a server-to-server adapter; do not call it directly from the browser or expose service credentials.
+- Add the existing [jussi-aibot](https://github.com/jussipalanen/jussi-aibot) Python/FastAPI service in M3 as a server-to-server answer service (`POST /v1/grounded-answer`); do not call it directly from the browser or expose service credentials.
 - Treat the AI service as an integration candidate, not a completed campus RAG implementation. Verify that retrieved campus documents and stable source IDs reach the answer before enabling citations.
 
-### M2–M3 integration contract
+### M3 integration contract
 
-1. JalaCampus exposes a server-authenticated search endpoint returning bounded excerpts with stable document and chunk IDs, title, source reference, and relevance metadata. Define the exact schema when M2 is implemented.
-2. A campus-specific `jussi-aibot` agent searches that endpoint. Track the required Python changes in [jussi-aibot #33](https://github.com/jussipalanen/jussi-aibot/issues/33).
-3. The Python chat API returns an answer plus structured citations whose IDs are checked against retrieved results. JalaCampus validates the response before displaying citations; a plain model-generated source name is insufficient.
-4. Empty or failed retrieval, embedding failure, and AI service errors produce a clear Finnish fallback without fabricated citations. Test the cross-service contract with synthetic fixtures and mocked AI providers before enabling the chat UI.
+Agreed in [jussi-aibot PR #34](https://github.com/jussipalanen/jussi-aibot/pull/34); details in [`docs/m3-rag-plan.md`](docs/m3-rag-plan.md).
+
+1. JalaCampus owns retrieval. It runs `searchChunks`, keeps passages above a similarity floor, and sends the question plus up to 8 passages (chunk ID, source name, text) to `POST /v1/grounded-answer` in `jussi-aibot`, server to server with an API key.
+2. `jussi-aibot` returns `answered` (a Finnish answer whose citations are passage IDs from the request) or `no_evidence`. No JalaCampus search endpoint is exposed to `jussi-aibot`.
+3. JalaCampus checks again that every citation is one of the IDs it sent before displaying anything. A plain model-generated source name is never shown as a citation.
+4. Empty retrieval, embedding failure, citation mismatches and AI service errors produce a clear Finnish fallback without fabricated citations. Test the contract with mocks before enabling the answer UI.
 
 
 ## ✅ M1 — Document preview (`feat/document-library`)
@@ -45,14 +47,13 @@
 
 **Acceptance:** Ingested sample text is searchable by semantic similarity; repeated ingestion doesn't duplicate chunks. ✅ Met for the command-line tools; no HTTP API or UI uses search yet.
 
-## ⏭️ M3 — RAG chat (`feat/rag-chat`)
+## ⏭️ M3 — Grounded answers (plan: [`docs/m3-rag-plan.md`](docs/m3-rag-plan.md))
 - [x] Retrieval with source IDs and similarity scores (`searchChunks`), shown as search results in the local UI
-- [ ] Server-to-server search endpoint for the AI service
-- [ ] Add a server-to-server adapter for `jussi-aibot` and a campus-specific agent configuration; keep the adapter mockable in tests
-- [ ] Keep `jussi-aibot` credentials server-side; apply rate limits, input validation and timeouts at the Node.js API boundary
-- [ ] Prompt injection boundaries and grounded-answer instructions
-- [ ] Verify retrieval from ingested campus documents with stable source IDs; show Finnish answers with visible, traceable citations and an honest fallback on no evidence
-- [ ] Mocked automated tests; basic evaluation set for Finnish prompts, including questions on a covered topic whose answer is **not** in the documents (e.g. "Mistä kirjasto löytyy?" scored 0.72 against the library guide). A similarity threshold alone cannot detect these, so the answer step must decline them.
+- [x] Agree the answer contract with `jussi-aibot` (`POST /v1/grounded-answer`; jussi-aibot PR #34)
+- [ ] `jussi-aibot`: endpoint, `grounded_answer` client permission, generation with citation mapping and prompt-injection tests (jussi-aibot #33)
+- [ ] JalaCampus: `grounded-answer.ts` client with a second citation check, and `POST /api/chat` with validation, rate limit, timeout and Finnish fallbacks; mocked tests
+- [ ] Keskustelu answer card with `[n]` citations linked to the source passages; honest `no_evidence` and "unavailable" states
+- [ ] Finnish evaluation set (`npm run eval`): answerable, out-of-scope, on-topic-but-missing (e.g. "Mistä kirjasto löytyy?" scored 0.72) and prompt-injection cases; choose the similarity floor from the results
 
 **Acceptance:** The assistant references actual retrieved source documents, refuses to invent citations, and handles API failures safely.
 
