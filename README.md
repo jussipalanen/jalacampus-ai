@@ -8,7 +8,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?logo=tailwindcss&logoColor=white)
 ![UI language](https://img.shields.io/badge/UI-Suomi-2563EB)
-![Project stage](https://img.shields.io/badge/Stage-Local_RAG_demo-F59E0B)
+![Project stage](https://img.shields.io/badge/Stage-Live_RAG_demo-F59E0B)
 
 *Designed and maintained by **Jussi Alanen** · [juzapala@gmail.com](mailto:juzapala@gmail.com)*
 
@@ -21,7 +21,7 @@
 JalaCampus AI is a university-oriented demo that aims to make study guides, course information and campus instructions easier to find. The final concept combines a **Finnish-language chat interface**, **retrieval-augmented generation (RAG)**, **PostgreSQL + pgvector**, and an exchangeable LLM provider.
 
 > [!IMPORTANT]
-> **Current status:** This repository includes a responsive UI and a session-only PDF/TXT document preview. PostgreSQL ingestion, Gemini chunk embeddings and semantic search work, and in local development the **Keskustelu** view answers questions from the synthetic sample documents. Answers come from [jussi-aibot](https://github.com/jussipalanen/jussi-aibot) on Cloud Run, and every citation is checked against the passages actually retrieved. The deployed Vercel demo has **no database yet**, so it shows a notice instead of answers. The interface never fabricates answers or citations: when the documents don't contain the answer, it says so.
+> **Current status:** This repository includes a responsive UI and a session-only PDF/TXT document preview. PostgreSQL ingestion, Gemini chunk embeddings and semantic search work, and the **Keskustelu** view answers questions from the synthetic sample documents, both locally and on the [live demo](https://jalacampus-ai.vercel.app). Answers come from [jussi-aibot](https://github.com/jussipalanen/jussi-aibot) on Cloud Run, and every citation is checked against the passages actually retrieved. The interface never fabricates answers or citations: when the documents don't contain the answer, it says so.
 
 ### 🧭 Demo features
 
@@ -31,7 +31,7 @@ JalaCampus AI is a university-oriented demo that aims to make study guides, cour
 | 📄 | PDF/TXT document preview | ✅ Session-only demo |
 | 🗃️ | Persistent document catalog & ingestion | 🗓️ Planned |
 | 🔎 | Semantic search over sample documents | ✅ CLI and local UI (search results, no AI answer) |
-| 🤖 | Grounded AI answers (RAG) | ✅ Local development (via jussi-aibot on Cloud Run) |
+| 🤖 | Grounded AI answers (RAG) | ✅ Live demo and local development (via jussi-aibot on Cloud Run) |
 | 📚 | Course information API | 🗓️ Planned |
 | 🛡️ | Grounded answers and source citations | ✅ Citations checked twice; honest "no answer" |
 | ⚙️ | Configurable model provider | 🗓️ Planned |
@@ -83,7 +83,7 @@ The **Dokumentit** tab accepts synthetic or licensed public PDF and UTF-8 TXT sa
 
 ## 🗃️ Vector storage foundation
 
-M2 adds a PostgreSQL/pgvector schema in `db/migrations/`, a deterministic Unicode-safe text chunker, and a server-side ingestion module (`src/lib/ingestion.ts`). Ingestion stores a document and its chunks in one transaction. The document ID is the SHA-256 of the normalized text, so ingesting the same content again changes nothing. Ingestion is command-line only. Search is also available in the local UI (see below); the deployed app has no database. 
+M2 adds a PostgreSQL/pgvector schema in `db/migrations/`, a deterministic Unicode-safe text chunker, and a server-side ingestion module (`src/lib/ingestion.ts`). Ingestion stores a document and its chunks in one transaction. The document ID is the SHA-256 of the normalized text, so ingesting the same content again changes nothing. Ingestion is command-line only; search and answers are available in the UI (see below). 
 Chunk embeddings use Google's **`gemini-embedding-2`** model on the free Gemini API tier, at 768 dimensions with an HNSW cosine index (`db/migrations/002_chunk_embeddings.sql`). The adapter in `src/lib/embeddings.ts` sits behind a small `Embedder` interface so another provider can replace it. `npm run db:embed` embeds every chunk that has no embedding, or one from a different model, and can be re-run safely. Each vector records its model; changing the model or dimension needs a new migration and re-embedding.
 
 ### Try semantic search locally
@@ -175,15 +175,31 @@ First run:
 ./dev npm run db:ingest -- data/samples
 ```
 
-The source is bind-mounted, so edits reload in the browser. Dependencies and `.next` live in named volumes: the container installs from `package-lock.json` with `npm ci`, and only again when the lockfile changes. It runs as the non-root `node` user (uid 1000), so files it writes into the repo belong to you on most Linux and WSL setups. `docker compose down -v` also deletes the database and dependency volumes. These services are for development only; Vercel builds and hosts production and needs a separately provisioned PostgreSQL service.
+The source is bind-mounted, so edits reload in the browser. Dependencies and `.next` live in named volumes: the container installs from `package-lock.json` with `npm ci`, and only again when the lockfile changes. It runs as the non-root `node` user (uid 1000), so files it writes into the repo belong to you on most Linux and WSL setups. `docker compose down -v` also deletes the database and dependency volumes. These services are for development only; production runs on Vercel with a Neon database (see below).
 
 ## ☁️ Vercel deployment
 
-Import `jussipalanen/jalacampus-ai` into Vercel as a **Next.js** project. Use the repository root as the Root Directory, `main` as the Production Branch, Node.js **22.x**, and the default Next.js build and output settings. The current UI scaffold requires **no environment variables**. Do not add the values from `.env.example` until the corresponding server-side features exist.
+Production: **https://jalacampus-ai.vercel.app**
 
-Vercel creates Preview deployments for pull requests and a Production deployment for commits merged into `main`. Check that the first deployment finishes successfully, the page loads in Finnish on desktop and mobile, and the interface stays in its light theme. Keep the Vercel project private if the demo should not be publicly reachable; Vercel deployment protection is configured in the project dashboard, not by this repository.
+Import `jussipalanen/jalacampus-ai` into Vercel as a **Next.js** project, with the repository root as the Root Directory, `main` as the Production Branch, Node.js **22.x**, and the default Next.js build and output settings. Vercel deploys every pull request as a Preview and every merge to `main` to Production. No `vercel.json` is needed, and the local `.vercel/` project link is ignored by Git.
 
-No `vercel.json` is needed for the current Next.js app. The local `.vercel/` project link is ignored by Git.
+**Production environment variables** (Production only, marked sensitive; Previews get none and fall back to the search-disabled notice):
+
+| Variable | Value |
+| --- | --- |
+| `DATABASE_URL` | Neon PostgreSQL, the **pooled** connection string (`-pooler` host, `sslmode=require`) |
+| `GEMINI_API_KEY` | Google AI Studio key (query embeddings) |
+| `AIBOT_URL` | The jussi-aibot Cloud Run URL |
+| `AIBOT_API_KEY` | Key of jussi-aibot's `jalacampus-prod` client (grounded answers only, 100/day); only its SHA-256 hash is in jussi-aibot's `config/clients.cloud-run.yaml` |
+
+Variables apply to the next deployment. To load or reset the production database, run these from your machine:
+1. Migrate through Neon's **direct** endpoint (the host without `-pooler`), because the migration runner holds a session lock: `DATABASE_URL=<direct url> npm run db:migrate`.
+2. Ingest with the pooled URL: `DATABASE_URL=<pooled url> npm run db:ingest -- data/samples`.
+
+**Abuse protection:**
+- A Vercel Firewall custom rule, "Rate limit AI endpoints", covers `POST /api/chat` and `/api/search` at 20 requests per minute per IP. It starts in **log** mode; switch it to `rate_limit` after reviewing traffic.
+- The jussi-aibot client caps answers at 100 a day.
+- The Gemini key has no billing, so abuse can exhaust the free quota but cannot create costs.
 
 ## 📦 GitHub releases
 
