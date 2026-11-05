@@ -3,8 +3,12 @@ import { MAX_QUERY_LENGTH } from "./search.ts";
 
 const MAX_BODY_BYTES = 4_096;
 
-/** A JSON error response with a Finnish, user-facing message. */
-export const errorResponse = (message: string, status: number) => Response.json({ error: message }, { status });
+/**
+ * A JSON error response with a Finnish, user-facing message. `code` is a stable,
+ * machine-readable reason for clients, e.g. "disabled" when a feature isn't configured.
+ */
+export const errorResponse = (message: string, status: number, code?: string) =>
+  Response.json(code ? { error: message, code } : { error: message }, { status });
 
 /** Rate-limit key: the first X-Forwarded-For address, or "local" in development. */
 export const clientKey = (request: Request) => request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "local";

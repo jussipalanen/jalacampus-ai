@@ -8,7 +8,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?logo=tailwindcss&logoColor=white)
 ![UI language](https://img.shields.io/badge/UI-Suomi-2563EB)
-![Project stage](https://img.shields.io/badge/Stage-Local_search_demo-F59E0B)
+![Project stage](https://img.shields.io/badge/Stage-Local_RAG_demo-F59E0B)
 
 *Designed and maintained by **Jussi Alanen** · [juzapala@gmail.com](mailto:juzapala@gmail.com)*
 
@@ -21,7 +21,7 @@
 JalaCampus AI is a university-oriented demo that aims to make study guides, course information and campus instructions easier to find. The final concept combines a **Finnish-language chat interface**, **retrieval-augmented generation (RAG)**, **PostgreSQL + pgvector**, and an exchangeable LLM provider.
 
 > [!IMPORTANT]
-> **Current status:** This repository includes a responsive UI and a session-only PDF/TXT document preview. Server-side PostgreSQL ingestion, Gemini chunk embeddings and semantic search work as tested command-line tools, and in local development the **Keskustelu** view shows matching source passages. AI-generated answers and RAG **are planned**, not implemented, and the deployed demo has no database. The interface deliberately avoids fabricated answers and citations.
+> **Current status:** This repository includes a responsive UI and a session-only PDF/TXT document preview. PostgreSQL ingestion, Gemini chunk embeddings and semantic search work, and in local development the **Keskustelu** view answers questions from the synthetic sample documents. Answers come from [jussi-aibot](https://github.com/jussipalanen/jussi-aibot) on Cloud Run, and every citation is checked against the passages actually retrieved. The deployed Vercel demo has **no database yet**, so it shows a notice instead of answers. The interface never fabricates answers or citations: when the documents don't contain the answer, it says so.
 
 ### 🧭 Demo features
 
@@ -31,9 +31,9 @@ JalaCampus AI is a university-oriented demo that aims to make study guides, cour
 | 📄 | PDF/TXT document preview | ✅ Session-only demo |
 | 🗃️ | Persistent document catalog & ingestion | 🗓️ Planned |
 | 🔎 | Semantic search over sample documents | ✅ CLI and local UI (search results, no AI answer) |
-| 🤖 | Grounded AI answers (RAG) | 🗓️ Planned |
+| 🤖 | Grounded AI answers (RAG) | ✅ Local development (via jussi-aibot on Cloud Run) |
 | 📚 | Course information API | 🗓️ Planned |
-| 🛡️ | Grounded answers and source citations | 🗓️ Planned |
+| 🛡️ | Grounded answers and source citations | ✅ Citations checked twice; honest "no answer" |
 | ⚙️ | Configurable model provider | 🗓️ Planned |
 
 ## 🎨 Visual language
@@ -100,7 +100,7 @@ npm run db:search -- "Unohdin salasanani, mitä teen?"
 
 ### Grounded answers API
 
-`POST /api/chat` with `{"question": "..."}` turns search results into a short Finnish answer through [jussi-aibot](https://github.com/jussipalanen/jussi-aibot)'s `POST /v1/grounded-answer` (design: [`docs/m3-rag-plan.md`](docs/m3-rag-plan.md)). The Keskustelu view does not use it yet; the answer UI is the next M3 step.
+`POST /api/chat` with `{"question": "..."}` turns search results into a short Finnish answer through [jussi-aibot](https://github.com/jussipalanen/jussi-aibot)'s `POST /v1/grounded-answer` (design: [`docs/m3-rag-plan.md`](docs/m3-rag-plan.md)). The Keskustelu view uses it (see below).
 
 1. **Search:** up to 8 passages are retrieved, and those below `SIMILARITY_FLOOR` (default 0.60) are dropped. If none remain, the reply is `no_evidence` and jussi-aibot is not called.
 2. **Answer:** the question and passages (chunk ID, source name, text) go to jussi-aibot with a server-side key and a 60 s timeout.
@@ -109,9 +109,19 @@ npm run db:search -- "Unohdin salasanani, mitä teen?"
 
 The route is disabled with a Finnish notice unless `DATABASE_URL`, `GEMINI_API_KEY`, `AIBOT_URL` and `AIBOT_API_KEY` are all set. It allows 10 questions per minute per client (in memory). The jussi-aibot key belongs to its `jalacampus-backend` client, and only its SHA-256 hash is stored in jussi-aibot's `config/clients.cloud-run.yaml`. Tests mock jussi-aibot and never call it.
 
-### Search in the local UI
+### Ask questions in the local UI
 
-Run `npm run dev` with the same `.env` and ask a question in the **Keskustelu** view. `POST /api/search` returns the closest chunks, which the UI shows as source passages with document, chunk number, similarity and chunk ID. They are clearly labelled as **search results, not an AI answer**. The route is disabled with a Finnish notice unless both `DATABASE_URL` and `GEMINI_API_KEY` are set, so deployments without them never call Gemini. It validates input (1–500 characters, 4 KB body) and applies a simple in-memory limit of 20 searches per minute per client. Before any public deployment it needs a shared or platform-level rate limit.
+Run `npm run dev` (or `./dev up`) with the same `.env` and ask a question in the **Keskustelu** view. The view shows one of these:
+
+- **Answered:**
+  - an answer card labelled *"Tekoälyn muodostama vastaus – tarkista lähteet"*;
+  - `[n]` links that jump to the numbered, highlighted source passages;
+  - the other retrieved passages under *"Muut löydetyt kohdat"*.
+- **No answer in the documents:** *"En löytänyt tähän vastausta dokumenteista."*, plus the searched passages, if any, so you can check them yourself.
+- **AI service unavailable:** a notice, and the found passages shown as search results.
+- **Answers not configured** (no `AIBOT_URL`/`AIBOT_API_KEY`): plain search results from `POST /api/search`, labelled as **search results, not an AI answer**.
+
+The model's answer is rendered as plain text; no HTML or Markdown from the model is interpreted. `POST /api/search` returns the closest chunks with document, chunk number, similarity and chunk ID. The search route is disabled with a Finnish notice unless both `DATABASE_URL` and `GEMINI_API_KEY` are set, so deployments without them never call Gemini. It validates input (1–500 characters, 4 KB body) and applies a simple in-memory limit of 20 searches per minute per client. Before any public deployment it needs a shared or platform-level rate limit.
 
 `GEMINI_API_KEY` is read only on the server and must never be exposed through a `NEXT_PUBLIC_` variable. Free-tier rate limits are low and may change; the adapter retries rate-limit and server errors with backoff. Embedding sends chunk text to Google, and free-tier content may be used to improve Google's products, so **only embed synthetic or appropriately licensed public documents**. Tests and CI use a deterministic fake embedder and never call the Gemini API.
 

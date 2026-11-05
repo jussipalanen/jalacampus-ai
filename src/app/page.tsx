@@ -32,7 +32,7 @@ export default function Home() {
         <aside className={`${mobileMenu ? "block" : "hidden"} h-fit rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:block`} aria-label="Päävalikko">
           <p className="px-3 pb-2 pt-2 text-xs font-semibold uppercase tracking-wider text-slate-400">Työtila</p>
           <nav className="space-y-1">{menu.map(({label,icon:Icon}) => <button key={label} type="button" onClick={() => {setTab(label);setMobileMenu(false);}} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium transition-colors ${tab===label ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`} aria-current={tab===label ? "page" : undefined}><Icon size={17} aria-hidden="true" />{label}{tab===label && <ChevronRight size={15} className="ml-auto" />}</button>)}</nav>
-          <div className="mt-8 rounded-xl bg-slate-50 p-4 text-xs leading-relaxed text-slate-600"><ShieldCheck size={18} className="mb-2 text-blue-600" aria-hidden="true" /><strong className="block text-slate-800">Tietosuojan huomioiva demo</strong>Ei oikeita opiskelijatietoja. AI ja RAG ovat suunniteltuja jatko-ominaisuuksia.</div>
+          <div className="mt-8 rounded-xl bg-slate-50 p-4 text-xs leading-relaxed text-slate-600"><ShieldCheck size={18} className="mb-2 text-blue-600" aria-hidden="true" /><strong className="block text-slate-800">Tietosuojan huomioiva demo</strong>Ei oikeita opiskelijatietoja. Vastaukset perustuvat vain kuvitteellisiin esimerkkidokumentteihin.</div>
         </aside>
         <main className="min-w-0">
           <div hidden={tab !== "Dokumentit"}><DocumentLibrary /></div>

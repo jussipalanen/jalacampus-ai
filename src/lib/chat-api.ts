@@ -35,7 +35,7 @@ export function parseSimilarityFloor(value: string | undefined): number {
 /** Framework-independent handler for POST /api/chat; user-facing messages are Finnish. */
 export async function handleChatRequest(request: Request, deps: ChatApiDeps): Promise<Response> {
   if (!deps.enabled) {
-    return errorResponse("Tekoälyvastaukset eivät ole käytössä tässä ympäristössä.", 503);
+    return errorResponse("Tekoälyvastaukset eivät ole käytössä tässä ympäristössä.", 503, "disabled");
   }
   if (!deps.allow(clientKey(request))) return errorResponse("Liian monta kysymystä. Odota hetki ja yritä uudelleen.", 429);
 
