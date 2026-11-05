@@ -78,7 +78,9 @@ test("disabled, rate limited and invalid requests never search or answer", async
   const disabled = deps({ enabled: false });
   const off = await handleChatRequest(post({ question: "kirjasto" }), disabled);
   assert.equal(off.status, 503);
-  assert.match((await off.json()).error, /eivät ole käytössä/);
+  const offBody = await off.json();
+  assert.match(offBody.error, /eivät ole käytössä/);
+  assert.equal(offBody.code, "disabled");
 
   const limited = deps({ allow: () => false });
   assert.equal((await handleChatRequest(post({ question: "kirjasto" }), limited)).status, 429);

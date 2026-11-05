@@ -11,7 +11,7 @@ export type SearchApiDeps = {
 /** Framework-independent handler for POST /api/search; user-facing messages are Finnish. */
 export async function handleSearchRequest(request: Request, deps: SearchApiDeps): Promise<Response> {
   if (!deps.enabled) {
-    return errorResponse("Haku ei ole käytössä tässä ympäristössä. Se vaatii tietokannan ja Gemini-avaimen.", 503);
+    return errorResponse("Haku ei ole käytössä tässä ympäristössä. Se vaatii tietokannan ja Gemini-avaimen.", 503, "disabled");
   }
   if (!deps.allow(clientKey(request))) return errorResponse("Liian monta hakua. Odota hetki ja yritä uudelleen.", 429);
 

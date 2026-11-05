@@ -7,9 +7,10 @@ test("UI declares Finnish language", () => {
   assert.match(source, /<html lang="fi">/);
 });
 
-test("search UI does not present results as AI answers", () => {
+test("chat UI labels AI answers and search results honestly", () => {
   const source = readFileSync(new URL("../src/components/search-chat.tsx", import.meta.url), "utf8");
-  assert.match(source, /Tekoälyn muotoilemat vastaukset toteutetaan seuraavassa vaiheessa/);
+  assert.match(source, /Tekoälyn muodostama vastaus – tarkista lähteet/);
   assert.match(source, /Nämä ovat hakutuloksia, eivät tekoälyn vastaus/);
-  assert.match(source, /Kysymys lähetetään Google Gemini -palveluun/);
+  assert.match(source, /lähetetään Google Gemini -palveluun/);
+  assert.doesNotMatch(source, /dangerouslySetInnerHTML/); // model output is rendered as text only
 });

@@ -52,7 +52,7 @@ Agreed in [jussi-aibot PR #34](https://github.com/jussipalanen/jussi-aibot/pull/
 - [x] Agree the answer contract with `jussi-aibot` (`POST /v1/grounded-answer`; jussi-aibot PR #34)
 - [x] `jussi-aibot`: endpoint, `grounded_answer` client permission, generation with citation mapping and prompt-injection tests (jussi-aibot PR #35); Cloud Run client config (jussi-aibot PR #36)
 - [x] JalaCampus: `grounded-answer.ts` client with a second citation check, and `POST /api/chat` with validation, rate limit, timeout and Finnish fallbacks; mocked tests
-- [ ] Keskustelu answer card with `[n]` citations linked to the source passages; honest `no_evidence` and "unavailable" states
+- [x] Keskustelu answer card with `[n]` citations linked to the source passages; honest `no_evidence` and "unavailable" states
 - [ ] Finnish evaluation set (`npm run eval`): answerable, out-of-scope, on-topic-but-missing (e.g. "Mistä kirjasto löytyy?" scored 0.72) and prompt-injection cases; choose the similarity floor from the results
 
 **Acceptance:** The assistant references actual retrieved source documents, refuses to invent citations, and handles API failures safely.

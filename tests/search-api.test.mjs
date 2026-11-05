@@ -35,7 +35,9 @@ test("is disabled with a Finnish notice when not configured", async () => {
   const d = deps({ enabled: false });
   const response = await handleSearchRequest(post({ query: "kirjasto" }), d);
   assert.equal(response.status, 503);
-  assert.match((await response.json()).error, /Haku ei ole käytössä/);
+  const body = await response.json();
+  assert.match(body.error, /Haku ei ole käytössä/);
+  assert.equal(body.code, "disabled");
   assert.equal(d.queries.length, 0);
 });
 
