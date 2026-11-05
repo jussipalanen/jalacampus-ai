@@ -6,6 +6,7 @@ Changes are recorded by release version. Update the Unreleased section in featur
 
 ### Added
 
+- `POST /api/chat`: grounded Finnish answers through jussi-aibot `POST /v1/grounded-answer`, with a similarity floor, a second citation check (any unknown citation ID → `no_evidence`) and Finnish fallbacks (`no_evidence`, `unavailable` with the found passages). Server-side client in `src/lib/grounded-answer.ts`; disabled unless `DATABASE_URL`, `GEMINI_API_KEY`, `AIBOT_URL` and `AIBOT_API_KEY` are set. No UI yet.
 - Next.js dev server as a `web` service in Docker Compose: hot reload, dependencies installed from `package-lock.json`, runs as the non-root `node` user and reaches the database as `db`. New `./dev db`, `./dev shell` and `./dev npm <args>` commands.
 
 ### Changed

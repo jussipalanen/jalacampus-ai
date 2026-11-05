@@ -98,6 +98,17 @@ npm run db:search -- "Unohdin salasanani, mitä teen?"
 
 `db:ingest` accepts UTF-8 `.txt` files and directories (PDF ingestion is not supported yet) and embeds new chunks when a key is set. `db:search` prints the closest chunks with their cosine score, source document, chunk number and chunk ID. Scores rank results but are not calibrated relevance probabilities: an unrelated question still returns its nearest chunks, so the M3 chat must apply its own evidence threshold. `searchChunks` in `src/lib/search.ts` only compares vectors produced by the same embedding model.
 
+### Grounded answers API
+
+`POST /api/chat` with `{"question": "..."}` turns search results into a short Finnish answer through [jussi-aibot](https://github.com/jussipalanen/jussi-aibot)'s `POST /v1/grounded-answer` (design: [`docs/m3-rag-plan.md`](docs/m3-rag-plan.md)). The Keskustelu view does not use it yet; the answer UI is the next M3 step.
+
+1. **Search:** up to 8 passages are retrieved, and those below `SIMILARITY_FLOOR` (default 0.60) are dropped. If none remain, the reply is `no_evidence` and jussi-aibot is not called.
+2. **Answer:** the question and passages (chunk ID, source name, text) go to jussi-aibot with a server-side key and a 60 s timeout.
+3. **Second citation check:** every returned citation must be a chunk ID that was sent, and every `[n]` marker must point into the citation list. Otherwise the whole answer is discarded as `no_evidence` and a warning is logged.
+4. **Reply:** `{status, answer, citations, passages}`, where `status` is `answered`, `no_evidence`, or `unavailable` (jussi-aibot down or misbehaving; the found passages are still returned with a Finnish notice).
+
+The route is disabled with a Finnish notice unless `DATABASE_URL`, `GEMINI_API_KEY`, `AIBOT_URL` and `AIBOT_API_KEY` are all set. It allows 10 questions per minute per client (in memory). The jussi-aibot key belongs to its `jalacampus-backend` client, and only its SHA-256 hash is stored in jussi-aibot's `config/clients.cloud-run.yaml`. Tests mock jussi-aibot and never call it.
+
 ### Search in the local UI
 
 Run `npm run dev` with the same `.env` and ask a question in the **Keskustelu** view. `POST /api/search` returns the closest chunks, which the UI shows as source passages with document, chunk number, similarity and chunk ID. They are clearly labelled as **search results, not an AI answer**. The route is disabled with a Finnish notice unless both `DATABASE_URL` and `GEMINI_API_KEY` are set, so deployments without them never call Gemini. It validates input (1–500 characters, 4 KB body) and applies a simple in-memory limit of 20 searches per minute per client. Before any public deployment it needs a shared or platform-level rate limit.

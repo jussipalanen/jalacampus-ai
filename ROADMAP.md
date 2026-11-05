@@ -50,8 +50,8 @@ Agreed in [jussi-aibot PR #34](https://github.com/jussipalanen/jussi-aibot/pull/
 ## ⏭️ M3 — Grounded answers (plan: [`docs/m3-rag-plan.md`](docs/m3-rag-plan.md))
 - [x] Retrieval with source IDs and similarity scores (`searchChunks`), shown as search results in the local UI
 - [x] Agree the answer contract with `jussi-aibot` (`POST /v1/grounded-answer`; jussi-aibot PR #34)
-- [ ] `jussi-aibot`: endpoint, `grounded_answer` client permission, generation with citation mapping and prompt-injection tests (jussi-aibot #33)
-- [ ] JalaCampus: `grounded-answer.ts` client with a second citation check, and `POST /api/chat` with validation, rate limit, timeout and Finnish fallbacks; mocked tests
+- [x] `jussi-aibot`: endpoint, `grounded_answer` client permission, generation with citation mapping and prompt-injection tests (jussi-aibot PR #35); Cloud Run client config (jussi-aibot PR #36)
+- [x] JalaCampus: `grounded-answer.ts` client with a second citation check, and `POST /api/chat` with validation, rate limit, timeout and Finnish fallbacks; mocked tests
 - [ ] Keskustelu answer card with `[n]` citations linked to the source passages; honest `no_evidence` and "unavailable" states
 - [ ] Finnish evaluation set (`npm run eval`): answerable, out-of-scope, on-topic-but-missing (e.g. "Mistä kirjasto löytyy?" scored 0.72) and prompt-injection cases; choose the similarity floor from the results
 
