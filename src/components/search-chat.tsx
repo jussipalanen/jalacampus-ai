@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { AlertTriangle, ChevronRight, FileText, Info, LoaderCircle, MessageSquareText, SearchX, Send } from "lucide-react";
-import { orderPassages, splitAnswer } from "@/lib/answer-format";
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import { AlertTriangle, ChevronDown, ChevronRight, FileText, Info, LoaderCircle, MessageSquareText, SearchX, Send, Trash2 } from "lucide-react";
+import { orderPassages, stripCitations, typedLength } from "@/lib/answer-format";
 
 type Passage = {
   chunkId: string;
@@ -35,7 +35,7 @@ const suggestions = [
 ];
 
 const formatScore = (score: number) => score.toLocaleString("fi-FI", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const sourceId = (n: number) => `lahde-${n}`;
+const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 async function postJson(url: string, body: object, signal: AbortSignal) {
   const response = await fetch(url, {
@@ -51,6 +51,20 @@ export function SearchChat() {
   const [draft, setDraft] = useState("");
   const [state, setState] = useState<State>({ status: "idle" });
   const pending = useRef<AbortController | null>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
+  const conversation = useRef<HTMLDivElement>(null);
+
+  // On small screens the input sits below the fold of the answer: bring the question back into view.
+  useEffect(() => {
+    if (state.status === "loading") conversation.current?.scrollIntoView({ block: "nearest", behavior: prefersReducedMotion() ? "auto" : "smooth" });
+  }, [state]);
+
+  function clear() {
+    pending.current?.abort();
+    setState({ status: "idle" });
+    // The clear button disappears with the chat, so keep keyboard focus in the section.
+    heading.current?.focus();
+  }
 
   async function ask(value: string) {
     const question = value.trim();
@@ -59,6 +73,8 @@ export function SearchChat() {
     const controller = new AbortController();
     pending.current = controller;
     setDraft("");
+    // Close the on-screen keyboard so the answer has room; keyboard users keep their focus.
+    if (window.matchMedia("(pointer: coarse)").matches && document.activeElement instanceof HTMLElement) document.activeElement.blur();
     setState({ status: "loading", question });
     try {
       const chat = await postJson("/api/chat", { question }, controller.signal);
@@ -79,16 +95,19 @@ export function SearchChat() {
 
   return <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" aria-labelledby="chat-heading">
     <div className="border-b border-slate-100 px-6 py-6 sm:px-9">
-      <div className="flex items-center gap-2 text-sm font-medium text-blue-700"><MessageSquareText size={17} aria-hidden="true" /> Kysy ohjeista</div>
-      <h1 id="chat-heading" className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">Miten voin auttaa?</h1>
-      <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">Kysy kuvitteellisen JalaCampus-korkeakoulun ohjeista. Vastaus muodostetaan vain löydetyistä dokumenteista, ja jokaiselle tiedolle näytetään lähde.</p>
+      <div className="flex min-h-11 items-center justify-between gap-3">
+        <div className="flex items-center gap-2 whitespace-nowrap text-sm font-medium text-blue-700"><MessageSquareText size={17} aria-hidden="true" /> Kysy ohjeista</div>
+        {state.status !== "idle" && <button type="button" onClick={clear} aria-label="Tyhjennä keskustelu" className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"><Trash2 size={16} aria-hidden="true" /> Tyhjennä</button>}
+      </div>
+      <h1 id="chat-heading" ref={heading} tabIndex={-1} className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">Miten voin auttaa?</h1>
+      {state.status === "idle" && <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">Kysy kuvitteellisen JalaCampus-korkeakoulun ohjeista. Vastaus muodostetaan vain löydetyistä dokumenteista, ja lähteet saat näkyviin painikkeella.</p>}
     </div>
 
     <div className="min-h-80 px-6 py-7 sm:px-9" aria-live="polite">
       {state.status === "idle" ? <>
         <p className="mb-4 text-sm font-medium text-slate-700">Kokeile esimerkkikysymystä</p>
         <div className="grid gap-3 sm:grid-cols-2">{suggestions.map(s => <button key={s} type="button" onClick={() => ask(s)} className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 p-4 text-left text-sm text-slate-700 transition hover:border-blue-300 hover:bg-blue-50/40">{s}<ChevronRight size={16} className="shrink-0 text-blue-600" aria-hidden="true" /></button>)}</div>
-      </> : <div className="space-y-5">
+      </> : <div ref={conversation} className="scroll-mt-24 space-y-5">
         <div className="ml-auto max-w-lg rounded-2xl rounded-tr-sm bg-blue-600 p-4 text-sm leading-6 text-white">{state.question}</div>
         {state.status === "loading" && <div className="text-sm text-slate-600">
           <p className="flex items-center gap-2"><LoaderCircle size={17} className="animate-spin text-blue-600" aria-hidden="true" /> Muodostetaan vastausta…</p>
@@ -106,8 +125,9 @@ export function SearchChat() {
     <form onSubmit={e => { e.preventDefault(); ask(draft); }} className="border-t border-slate-100 px-6 py-5 sm:px-9">
       <label htmlFor="question" className="sr-only">Kirjoita kysymys</label>
       <div className="flex gap-2 rounded-xl border border-slate-200 bg-white p-2 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
-        <input id="question" value={draft} maxLength={500} onChange={e => setDraft(e.target.value)} placeholder="Kirjoita kysymyksesi..." className="min-w-0 flex-1 px-3 text-sm outline-none placeholder:text-slate-400" />
-        <button disabled={!draft.trim() || state.status === "loading"} type="submit" aria-label="Lähetä kysymys" className="rounded-lg bg-blue-600 p-3 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"><Send size={17} aria-hidden="true" /></button>
+        {/* 16px text on phones: iOS Safari zooms the page when a smaller input gets focus. */}
+        <input id="question" value={draft} maxLength={500} onChange={e => setDraft(e.target.value)} placeholder="Kirjoita kysymyksesi..." className="min-w-0 flex-1 px-3 text-base outline-none placeholder:text-slate-400 sm:text-sm" />
+        <button disabled={!draft.trim() || state.status === "loading"} type="submit" aria-label="Lähetä kysymys" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"><Send size={17} aria-hidden="true" /></button>
       </div>
       <p className="mt-2 text-xs text-slate-400">Kysymys ja löydetyt kohdat lähetetään Google Gemini -palveluun hakua ja vastausta varten. Älä kirjoita henkilötietoja.</p>
     </form>
@@ -118,19 +138,15 @@ function AnswerView({ response }: { response: ChatResponse }) {
   const { cited, others } = orderPassages(response.passages, response.citations);
 
   if (response.status === "answered") {
-    const labels = new Map(cited.map(({ n, passage }) => [n, `Lähde ${n}: ${passage.sourceName}, kohta ${passage.ordinal + 1}`]));
-    return <div className="space-y-5">
-      <section aria-labelledby="answer-heading" className="rounded-2xl border border-blue-200 bg-blue-50/40 p-4 sm:p-5">
-        <h2 id="answer-heading" className="flex items-center gap-2 text-sm font-semibold"><MessageSquareText size={16} className="text-blue-600" aria-hidden="true" /> Vastaus</h2>
-        <p className="mt-1 text-xs text-slate-500">Tekoälyn muodostama vastaus – tarkista lähteet.</p>
-        <p className="mt-3 text-sm leading-7 text-slate-800">
-          {splitAnswer(response.answer, response.citations.length).map((segment, i) => segment.type === "text"
-            ? <span key={i}>{segment.text}</span>
-            : <a key={i} href={`#${sourceId(segment.n)}`} aria-label={labels.get(segment.n) ?? `Lähde ${segment.n}`} className="ml-0.5 rounded bg-blue-100 px-1 text-xs font-semibold text-blue-800 hover:bg-blue-200">[{segment.n}]</a>)}
-        </p>
+    return <div className="space-y-3">
+      <section aria-label="Vastaus">
+        <p className="text-base leading-7 text-slate-800 sm:text-sm"><TypedText text={stripCitations(response.answer, response.citations.length)} /></p>
+        <p className="mt-2 text-xs text-slate-500">Tekoälyn muodostama vastaus – tarkista lähteet.</p>
       </section>
-      <PassageList title="Lähteet" items={cited.map(({ n, passage }) => ({ passage, n }))} />
-      {others.length > 0 && <PassageList title="Muut löydetyt kohdat" note="Näitä kohtia ei käytetty vastauksessa." items={others.map(passage => ({ passage }))} />}
+      <SourcesToggle showLabel={`Näytä lähteet (${cited.length})`} hideLabel="Piilota lähteet">
+        <PassageList title="Lähteet" passages={cited.map(({ passage }) => passage)} />
+        {others.length > 0 && <PassageList title="Muut löydetyt kohdat" note="Näitä kohtia ei käytetty vastauksessa." passages={others} />}
+      </SourcesToggle>
     </div>;
   }
 
@@ -141,22 +157,68 @@ function AnswerView({ response }: { response: ChatResponse }) {
     </div>;
   }
 
-  return <div className="space-y-5">
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
-      <p className="flex items-center gap-2 text-sm font-semibold text-slate-800"><SearchX size={16} className="text-slate-500" aria-hidden="true" /> {response.answer}</p>
+  return <div className="space-y-3">
+    <div>
+      <p className="flex items-start gap-2 text-base font-medium leading-7 text-slate-800 sm:text-sm"><SearchX size={16} className="mt-1.5 shrink-0 text-slate-500" aria-hidden="true" /> <span><TypedText text={response.answer} /></span></p>
       <p className="mt-1 text-xs leading-5 text-slate-500">{response.passages.length > 0
-        ? "Löydetyt kohdat käsittelevät aihetta, mutta eivät vastaa kysymykseen. Voit tarkistaa ne alta."
+        ? "Löydetyt kohdat käsittelevät aihetta, mutta eivät vastaa kysymykseen."
         : "Dokumenteista ei löytynyt kysymykseen liittyviä kohtia."}</p>
     </div>
-    {response.passages.length > 0 && <PassageList title="Haetut kohdat" items={response.passages.map(passage => ({ passage }))} />}
+    {response.passages.length > 0 && <SourcesToggle showLabel={`Näytä haetut kohdat (${response.passages.length})`} hideLabel="Piilota haetut kohdat">
+      <PassageList title="Haetut kohdat" passages={response.passages} />
+    </SourcesToggle>}
   </div>;
 }
 
-function PassageList({ title, note, items }: { title: string; note?: string; items: { passage: Passage; n?: number }[] }) {
+/**
+ * Reveals text letter by letter. The hidden remainder keeps the final line breaks and height,
+ * so words don't jump between lines and the page doesn't grow while typing. Screen readers
+ * get the full text once instead of every letter.
+ */
+function TypedText({ text }: { text: string }) {
+  const chars = useMemo(() => Array.from(text), [text]);
+  const [count, setCount] = useState(() => prefersReducedMotion() ? chars.length : 0);
+
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+    let frame = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const next = typedLength(now - start, chars.length);
+      setCount(next);
+      if (next < chars.length) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [chars]);
+
+  return <>
+    <span className="sr-only select-none">{text}</span>
+    <span aria-hidden="true">
+      {chars.slice(0, count).join("")}
+      {count < chars.length && <span className="relative"><span className="absolute top-0 h-[1.2em] w-0.5 animate-pulse bg-blue-600" /></span>}
+      <span className="invisible">{chars.slice(count).join("")}</span>
+    </span>
+  </>;
+}
+
+function SourcesToggle({ showLabel, hideLabel, children }: { showLabel: string; hideLabel: string; children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const panel = useId();
+  return <div>
+    <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls={panel} className="-ml-3 inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium text-blue-700 transition hover:bg-blue-50">
+      <FileText size={16} aria-hidden="true" /> {open ? hideLabel : showLabel} <ChevronDown size={16} className={`transition-transform ${open ? "rotate-180" : ""}`} aria-hidden="true" />
+    </button>
+    {/* Opening the sources is the user's own action, so it isn't announced by the chat's live region. */}
+    <div id={panel} hidden={!open} aria-live="off" className="mt-3 space-y-5">{children}</div>
+  </div>;
+}
+
+function PassageList({ title, note, passages }: { title: string; note?: string; passages: Passage[] }) {
   return <section>
     <h2 className="flex items-center gap-2 text-sm font-semibold"><FileText size={16} className="text-blue-600" aria-hidden="true" /> {title}</h2>
     {note && <p className="mt-1 text-xs text-slate-500">{note}</p>}
-    <ol className="mt-3 space-y-3">{items.map(({ passage, n }) => <ResultCard key={passage.chunkId} result={passage} n={n} />)}</ol>
+    <ol className="mt-3 space-y-3">{passages.map(passage => <ResultCard key={passage.chunkId} result={passage} />)}</ol>
   </section>;
 }
 
@@ -170,21 +232,19 @@ function SearchResults({ results }: { results: Passage[] }) {
   </div>;
 }
 
-function ResultCard({ result, n }: { result: Passage; n?: number }) {
+function ResultCard({ result }: { result: Passage }) {
   const [expanded, setExpanded] = useState(false);
-  const cited = n !== undefined;
-  return <li id={cited ? sourceId(n) : undefined} className={`scroll-mt-24 rounded-xl border bg-white p-4 target:ring-2 target:ring-blue-400 ${cited ? "border-blue-200" : "border-slate-200"}`}>
+  return <li className="rounded-xl border border-slate-200 bg-white p-4">
     <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-      <p className="break-all text-sm font-medium text-slate-900">
-        {cited && <span className="mr-2 rounded bg-blue-100 px-1.5 py-0.5 text-xs font-semibold text-blue-800">[{n}]</span>}
+      <p className="min-w-0 text-sm font-medium text-slate-900 wrap-anywhere">
         {result.sourceName} <span className="font-normal text-slate-500">· kohta {result.ordinal + 1}</span>
       </p>
       <p className="text-xs text-slate-500">Samankaltaisuus {formatScore(result.score)}</p>
     </div>
     {/* The collapsed preview joins lines with " · " so blank lines don't use up the four visible lines. */}
     <p className={`mt-2 text-sm leading-6 text-slate-700 ${expanded ? "whitespace-pre-line" : "line-clamp-4"}`}>{expanded ? result.text : result.text.replace(/\s*\n\s*/g, " · ").replace(/\s+/g, " ")}</p>
-    <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-      <button type="button" onClick={() => setExpanded(!expanded)} aria-expanded={expanded} className="text-xs font-medium text-blue-700 hover:underline">{expanded ? "Näytä vähemmän" : "Näytä koko kohta"}</button>
+    <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+      <button type="button" onClick={() => setExpanded(!expanded)} aria-expanded={expanded} className="min-h-11 text-sm font-medium text-blue-700 hover:underline">{expanded ? "Näytä vähemmän" : "Näytä koko kohta"}</button>
       <span className="font-mono text-[11px] text-slate-400" title={result.chunkId}>Tunniste {result.chunkId.slice(0, 12)}</span>
     </div>
   </li>;

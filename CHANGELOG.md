@@ -4,6 +4,15 @@ Changes are recorded by release version. Update the Unreleased section in featur
 
 ## [Unreleased]
 
+### Changed
+
+- Keskustelu shows the answer as plain text without `[n]` markers, typed out letter by letter (immediately with the reduced-motion setting). Sources open with a button instead of being always visible.
+- Keskustelu on phones and tablets: 16 px input text (no iOS zoom on focus), 44 px touch targets, the question scrolls back into view after sending, and the on-screen keyboard closes.
+
+### Added
+
+- *Tyhjennä* button that clears the conversation and cancels a question still in progress.
+
 ## [0.3.0] - 2026-11-05
 
 Grounded Finnish answers, locally and on the live demo.
