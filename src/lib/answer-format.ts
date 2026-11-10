@@ -1,24 +1,26 @@
 /** Client-safe helpers for showing a grounded answer and its sources. */
 
-export type AnswerSegment = { type: "text"; text: string } | { type: "cite"; n: number };
+const TYPING_CHARS_PER_MS = 0.04;
+const TYPING_MAX_MS = 6000;
 
 /**
- * Splits an answer into plain text and `[n]` citation markers. Only markers that point
- * into the citation list (1..citationCount) become citations; anything else stays text.
- * The result is rendered as React text and links, never as HTML.
+ * Removes `[n]` citation markers, and the space or commas around a run of them, so the
+ * answer reads as plain text. Only markers that point into the citation list
+ * (1..citationCount) are removed; anything else stays text.
  */
-export function splitAnswer(answer: string, citationCount: number): AnswerSegment[] {
-  const segments: AnswerSegment[] = [];
-  let last = 0;
-  for (const match of answer.matchAll(/\[(\d+)\]/g)) {
-    const n = Number(match[1]);
-    if (n < 1 || n > citationCount) continue;
-    if (match.index > last) segments.push({ type: "text", text: answer.slice(last, match.index) });
-    segments.push({ type: "cite", n });
-    last = match.index + match[0].length;
-  }
-  if (last < answer.length) segments.push({ type: "text", text: answer.slice(last) });
-  return segments;
+export function stripCitations(answer: string, citationCount: number): string {
+  return answer
+    .replace(/\s*\[\d+\](?:[\s,]*\[\d+\])*/g, run => {
+      const valid = [...run.matchAll(/\[(\d+)\]/g)].every(([, n]) => Number(n) >= 1 && Number(n) <= citationCount);
+      return valid ? "" : run;
+    })
+    .trim();
+}
+
+/** How many characters of the answer are visible after `elapsedMs`. Long answers type faster so none takes over 6 s. */
+export function typedLength(elapsedMs: number, length: number): number {
+  const perMs = Math.max(TYPING_CHARS_PER_MS, length / TYPING_MAX_MS);
+  return Math.min(length, Math.floor(elapsedMs * perMs));
 }
 
 /**

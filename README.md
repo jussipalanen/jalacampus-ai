@@ -133,14 +133,13 @@ Results on 2026-11-05 (`gemini-embedding-2`, `gemini-3.5-flash-lite`, floor 0.60
 Run `npm run dev` (or `./dev up`) with the same `.env` and ask a question in the **Keskustelu** view. The view shows one of these:
 
 - **Answered:**
-  - an answer card labelled *"Tekoälyn muodostama vastaus – tarkista lähteet"*;
-  - `[n]` links that jump to the numbered, highlighted source passages;
-  - the other retrieved passages under *"Muut löydetyt kohdat"*.
-- **No answer in the documents:** *"En löytänyt tähän vastausta dokumenteista."*, plus the searched passages, if any, so you can check them yourself.
+  - the answer as plain text, typed out letter by letter (shown at once with the reduced-motion setting) and labelled *"Tekoälyn muodostama vastaus – tarkista lähteet"*. The API's `[n]` markers are removed from the displayed text;
+  - a *"Näytä lähteet"* button that opens the cited passages, and the other retrieved passages under *"Muut löydetyt kohdat"*.
+- **No answer in the documents:** *"En löytänyt tähän vastausta dokumenteista."*, plus a button that opens the searched passages, if any, so you can check them yourself.
 - **AI service unavailable:** a notice, and the found passages shown as search results.
 - **Answers not configured** (no `AIBOT_URL`/`AIBOT_API_KEY`): plain search results from `POST /api/search`, labelled as **search results, not an AI answer**.
 
-The model's answer is rendered as plain text; no HTML or Markdown from the model is interpreted. `POST /api/search` returns the closest chunks with document, chunk number, similarity and chunk ID. The search route is disabled with a Finnish notice unless both `DATABASE_URL` and `GEMINI_API_KEY` are set, so deployments without them never call Gemini. It validates input (1–500 characters, 4 KB body) and applies a simple in-memory limit of 20 searches per minute per client. Before any public deployment it needs a shared or platform-level rate limit.
+The **Tyhjennä** button clears the conversation and cancels a question still in progress. The model's answer is rendered as plain text; no HTML or Markdown from the model is interpreted. `POST /api/search` returns the closest chunks with document, chunk number, similarity and chunk ID. The search route is disabled with a Finnish notice unless both `DATABASE_URL` and `GEMINI_API_KEY` are set, so deployments without them never call Gemini. It validates input (1–500 characters, 4 KB body) and applies a simple in-memory limit of 20 searches per minute per client. Before any public deployment it needs a shared or platform-level rate limit.
 
 `GEMINI_API_KEY` is read only on the server and must never be exposed through a `NEXT_PUBLIC_` variable. Free-tier rate limits are low and may change; the adapter retries rate-limit and server errors with backoff. Embedding sends chunk text to Google, and free-tier content may be used to improve Google's products, so **only embed synthetic or appropriately licensed public documents**. Tests and CI use a deterministic fake embedder and never call the Gemini API.
 
