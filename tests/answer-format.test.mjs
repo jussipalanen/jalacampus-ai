@@ -16,13 +16,13 @@ test("markers outside the citation list stay plain text", () => {
 
 test("typing reveals text over time and stops at the full length", () => {
   assert.equal(typedLength(0, 100), 0);
-  assert.equal(typedLength(1000, 100), 40);
+  assert.equal(typedLength(1000, 100), 65);
   assert.equal(typedLength(60_000, 100), 100);
 });
 
 test("long answers finish typing within the time limit", () => {
-  assert.equal(typedLength(6000, 5000), 5000);
-  assert.equal(typedLength(3000, 5000), 2500);
+  assert.equal(typedLength(4000, 5000), 5000);
+  assert.equal(typedLength(2000, 5000), 2500);
 });
 
 test("cited passages come first in citation order, then the rest in search order", () => {

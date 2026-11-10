@@ -1,7 +1,7 @@
 /** Client-safe helpers for showing a grounded answer and its sources. */
 
-const TYPING_CHARS_PER_MS = 0.04;
-const TYPING_MAX_MS = 6000;
+const TYPING_CHARS_PER_MS = 0.065;
+const TYPING_MAX_MS = 4000;
 
 /**
  * Removes `[n]` citation markers, and the space or commas around a run of them, so the
@@ -17,7 +17,7 @@ export function stripCitations(answer: string, citationCount: number): string {
     .trim();
 }
 
-/** How many characters of the answer are visible after `elapsedMs`. Long answers type faster so none takes over 6 s. */
+/** How many characters of the answer are visible after `elapsedMs`. Long answers type faster so none takes over 4 s. */
 export function typedLength(elapsedMs: number, length: number): number {
   const perMs = Math.max(TYPING_CHARS_PER_MS, length / TYPING_MAX_MS);
   return Math.min(length, Math.floor(elapsedMs * perMs));

@@ -7,11 +7,12 @@ Changes are recorded by release version. Update the Unreleased section in featur
 ### Changed
 
 - Keskustelu shows the answer as plain text without `[n]` markers, typed out letter by letter (immediately with the reduced-motion setting). Sources open with a button instead of being always visible.
+- Keskustelu keeps earlier questions and answers in a scrollable message area, with the newest question brought into view. The history lives only in the open page, and each question is still answered on its own.
 - Keskustelu on phones and tablets: 16 px input text (no iOS zoom on focus), 44 px touch targets, the question scrolls back into view after sending, and the on-screen keyboard closes.
 
 ### Added
 
-- *Tyhjennä* button that clears the conversation and cancels a question still in progress.
+- *Tyhjennä* button that clears the whole conversation and cancels a question still in progress.
 
 ## [0.3.0] - 2026-11-05
 

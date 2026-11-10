@@ -20,12 +20,13 @@ type ChatResponse = {
   passages: Passage[];
 };
 
-type State =
-  | { status: "idle" }
-  | { status: "loading"; question: string }
-  | { status: "answer"; question: string; response: ChatResponse }
-  | { status: "search"; question: string; results: Passage[] }
-  | { status: "error"; question: string; message: string };
+type Reply =
+  | { status: "loading" }
+  | { status: "answer"; response: ChatResponse }
+  | { status: "search"; results: Passage[] }
+  | { status: "error"; message: string };
+
+type Turn = { id: number; question: string; reply: Reply };
 
 const suggestions = [
   "Milloin kampuskirjasto on auki?",
@@ -49,89 +50,105 @@ async function postJson(url: string, body: object, signal: AbortSignal) {
 
 export function SearchChat() {
   const [draft, setDraft] = useState("");
-  const [state, setState] = useState<State>({ status: "idle" });
+  const [turns, setTurns] = useState<Turn[]>([]);
   const pending = useRef<AbortController | null>(null);
+  const nextId = useRef(0);
+  const section = useRef<HTMLElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
-  const conversation = useRef<HTMLDivElement>(null);
+  const scroller = useRef<HTMLDivElement>(null);
+  const latest = useRef<HTMLDivElement>(null);
+  const active = turns.length > 0;
+  const loading = turns.at(-1)?.reply.status === "loading";
 
-  // On small screens the input sits below the fold of the answer: bring the question back into view.
+  // Runs for a new question and when its reply arrives: the question goes to the top of the
+  // message area with the reply below it. The page itself may still be scrolled to the input.
   useEffect(() => {
-    if (state.status === "loading") conversation.current?.scrollIntoView({ block: "nearest", behavior: prefersReducedMotion() ? "auto" : "smooth" });
-  }, [state]);
+    if (!latest.current || !scroller.current) return;
+    const behavior: ScrollBehavior = prefersReducedMotion() ? "auto" : "smooth";
+    section.current?.scrollIntoView({ block: "nearest", behavior });
+    scroller.current.scrollTo({ top: latest.current.offsetTop - 16, behavior });
+  }, [turns]);
 
   function clear() {
     pending.current?.abort();
-    setState({ status: "idle" });
+    setTurns([]);
     // The clear button disappears with the chat, so keep keyboard focus in the section.
     heading.current?.focus();
   }
 
   async function ask(value: string) {
     const question = value.trim();
-    if (!question) return;
-    pending.current?.abort();
+    if (!question || loading) return;
     const controller = new AbortController();
     pending.current = controller;
+    const id = nextId.current++;
+    const settle = (reply: Reply) => setTurns(current => current.map(turn => turn.id === id ? { ...turn, reply } : turn));
     setDraft("");
     // Close the on-screen keyboard so the answer has room; keyboard users keep their focus.
     if (window.matchMedia("(pointer: coarse)").matches && document.activeElement instanceof HTMLElement) document.activeElement.blur();
-    setState({ status: "loading", question });
+    setTurns(current => [...current, { id, question, reply: { status: "loading" } }]);
     try {
       const chat = await postJson("/api/chat", { question }, controller.signal);
       if (chat.response.status === 503 && chat.body.code === "disabled") {
         // AI answers aren't configured here (e.g. no jussi-aibot key): show search results instead.
         const search = await postJson("/api/search", { query: question }, controller.signal);
         if (!search.response.ok) throw new Error(search.body.error || "Haku epäonnistui.");
-        setState({ status: "search", question, results: search.body.results as Passage[] });
+        settle({ status: "search", results: search.body.results as Passage[] });
         return;
       }
       if (!chat.response.ok) throw new Error(chat.body.error || "Vastauksen muodostaminen epäonnistui.");
-      setState({ status: "answer", question, response: chat.body as ChatResponse });
+      settle({ status: "answer", response: chat.body as ChatResponse });
     } catch (cause) {
       if (controller.signal.aborted) return;
-      setState({ status: "error", question, message: cause instanceof Error ? cause.message : "Vastauksen muodostaminen epäonnistui." });
+      settle({ status: "error", message: cause instanceof Error ? cause.message : "Vastauksen muodostaminen epäonnistui." });
     }
   }
 
-  return <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" aria-labelledby="chat-heading">
-    <div className="border-b border-slate-100 px-6 py-6 sm:px-9">
+  return <section ref={section} className={`scroll-mt-[6.25rem] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ${active ? "flex h-[calc(100dvh-7.5rem)] max-h-[56rem] min-h-96 flex-col" : ""}`} aria-labelledby="chat-heading">
+    <div className={`shrink-0 border-b border-slate-100 px-6 sm:px-9 ${active ? "py-2" : "py-6"}`}>
       <div className="flex min-h-11 items-center justify-between gap-3">
         <div className="flex items-center gap-2 whitespace-nowrap text-sm font-medium text-blue-700"><MessageSquareText size={17} aria-hidden="true" /> Kysy ohjeista</div>
-        {state.status !== "idle" && <button type="button" onClick={clear} aria-label="Tyhjennä keskustelu" className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"><Trash2 size={16} aria-hidden="true" /> Tyhjennä</button>}
+        {active && <button type="button" onClick={clear} aria-label="Tyhjennä keskustelu" className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"><Trash2 size={16} aria-hidden="true" /> Tyhjennä</button>}
       </div>
-      <h1 id="chat-heading" ref={heading} tabIndex={-1} className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">Miten voin auttaa?</h1>
-      {state.status === "idle" && <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">Kysy kuvitteellisen JalaCampus-korkeakoulun ohjeista. Vastaus muodostetaan vain löydetyistä dokumenteista, ja lähteet saat näkyviin painikkeella.</p>}
+      <h1 id="chat-heading" ref={heading} tabIndex={-1} className={active ? "sr-only" : "mt-1 text-2xl font-semibold tracking-tight sm:text-3xl"}>Miten voin auttaa?</h1>
+      {!active && <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">Kysy kuvitteellisen JalaCampus-korkeakoulun ohjeista. Vastaus muodostetaan vain löydetyistä dokumenteista, ja lähteet saat näkyviin painikkeella.</p>}
     </div>
 
-    <div className="min-h-80 px-6 py-7 sm:px-9" aria-live="polite">
-      {state.status === "idle" ? <>
+    <div ref={scroller} role="log" aria-label="Keskustelu" tabIndex={active ? 0 : undefined} className={active ? "relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-4 sm:px-9" : "min-h-80 px-6 py-7 sm:px-9"}>
+      {active ? <div className="space-y-8">
+        {turns.map((turn, i) => <div key={turn.id} ref={i === turns.length - 1 ? latest : undefined}><TurnView turn={turn} /></div>)}
+      </div> : <>
         <p className="mb-4 text-sm font-medium text-slate-700">Kokeile esimerkkikysymystä</p>
         <div className="grid gap-3 sm:grid-cols-2">{suggestions.map(s => <button key={s} type="button" onClick={() => ask(s)} className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 p-4 text-left text-sm text-slate-700 transition hover:border-blue-300 hover:bg-blue-50/40">{s}<ChevronRight size={16} className="shrink-0 text-blue-600" aria-hidden="true" /></button>)}</div>
-      </> : <div ref={conversation} className="scroll-mt-24 space-y-5">
-        <div className="ml-auto max-w-lg rounded-2xl rounded-tr-sm bg-blue-600 p-4 text-sm leading-6 text-white">{state.question}</div>
-        {state.status === "loading" && <div className="text-sm text-slate-600">
-          <p className="flex items-center gap-2"><LoaderCircle size={17} className="animate-spin text-blue-600" aria-hidden="true" /> Muodostetaan vastausta…</p>
-          <p className="mt-1 pl-6 text-xs text-slate-400">Ensimmäinen vastaus voi kestää jopa minuutin.</p>
-        </div>}
-        {state.status === "error" && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{state.message}</p>}
-        {state.status === "answer" && <AnswerView response={state.response} />}
-        {state.status === "search" && <>
-          <p className="flex items-start gap-2 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600"><Info size={16} className="mt-0.5 shrink-0" aria-hidden="true" /> Tekoälyvastaukset eivät ole käytössä tässä ympäristössä. Alla ovat hakutulokset.</p>
-          <SearchResults results={state.results} />
-        </>}
-      </div>}
+      </>}
     </div>
 
-    <form onSubmit={e => { e.preventDefault(); ask(draft); }} className="border-t border-slate-100 px-6 py-5 sm:px-9">
+    <form onSubmit={e => { e.preventDefault(); ask(draft); }} className={`shrink-0 border-t border-slate-100 px-6 sm:px-9 ${active ? "py-3" : "py-5"}`}>
       <label htmlFor="question" className="sr-only">Kirjoita kysymys</label>
       <div className="flex gap-2 rounded-xl border border-slate-200 bg-white p-2 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
         {/* 16px text on phones: iOS Safari zooms the page when a smaller input gets focus. */}
         <input id="question" value={draft} maxLength={500} onChange={e => setDraft(e.target.value)} placeholder="Kirjoita kysymyksesi..." className="min-w-0 flex-1 px-3 text-base outline-none placeholder:text-slate-400 sm:text-sm" />
-        <button disabled={!draft.trim() || state.status === "loading"} type="submit" aria-label="Lähetä kysymys" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"><Send size={17} aria-hidden="true" /></button>
+        <button disabled={!draft.trim() || loading} type="submit" aria-label="Lähetä kysymys" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"><Send size={17} aria-hidden="true" /></button>
       </div>
       <p className="mt-2 text-xs text-slate-400">Kysymys ja löydetyt kohdat lähetetään Google Gemini -palveluun hakua ja vastausta varten. Älä kirjoita henkilötietoja.</p>
     </form>
   </section>;
+}
+
+function TurnView({ turn: { question, reply } }: { turn: Turn }) {
+  return <div className="space-y-4">
+    <div className="ml-auto w-fit max-w-lg rounded-2xl rounded-tr-sm bg-blue-600 p-4 text-sm leading-6 text-white wrap-anywhere">{question}</div>
+    {reply.status === "loading" && <div className="text-sm text-slate-600">
+      <p className="flex items-center gap-2"><LoaderCircle size={17} className="animate-spin text-blue-600" aria-hidden="true" /> Muodostetaan vastausta…</p>
+      <p className="mt-1 pl-6 text-xs text-slate-400">Ensimmäinen vastaus voi kestää jopa minuutin.</p>
+    </div>}
+    {reply.status === "error" && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{reply.message}</p>}
+    {reply.status === "answer" && <AnswerView response={reply.response} />}
+    {reply.status === "search" && <>
+      <p className="flex items-start gap-2 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600"><Info size={16} className="mt-0.5 shrink-0" aria-hidden="true" /> Tekoälyvastaukset eivät ole käytössä tässä ympäristössä. Alla ovat hakutulokset.</p>
+      <SearchResults results={reply.results} />
+    </>}
+  </div>;
 }
 
 function AnswerView({ response }: { response: ChatResponse }) {
