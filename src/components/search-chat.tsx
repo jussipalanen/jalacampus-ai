@@ -130,7 +130,7 @@ export function SearchChat() {
         <input id="question" value={draft} maxLength={500} onChange={e => setDraft(e.target.value)} placeholder="Kirjoita kysymyksesi..." className="min-w-0 flex-1 px-3 text-base outline-none placeholder:text-slate-400 sm:text-sm" />
         <button disabled={!draft.trim() || loading} type="submit" aria-label="Lähetä kysymys" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"><Send size={17} aria-hidden="true" /></button>
       </div>
-      <p className="mt-2 text-xs text-slate-400">Kysymys ja löydetyt kohdat lähetetään Google Gemini -palveluun hakua ja vastausta varten. Älä kirjoita henkilötietoja.</p>
+      <p className="mt-2 text-xs text-slate-500">Kysymys ja löydetyt kohdat lähetetään Google Gemini -palveluun hakua ja vastausta varten. Älä kirjoita henkilötietoja.</p>
     </form>
   </section>;
 }
@@ -140,7 +140,13 @@ function TurnView({ turn: { question, reply } }: { turn: Turn }) {
     <div className="ml-auto w-fit max-w-lg rounded-2xl rounded-tr-sm bg-blue-600 p-4 text-sm leading-6 text-white wrap-anywhere">{question}</div>
     {reply.status === "loading" && <div className="text-sm text-slate-600">
       <p className="flex items-center gap-2"><LoaderCircle size={17} className="animate-spin text-blue-600" aria-hidden="true" /> Muodostetaan vastausta…</p>
-      <p className="mt-1 pl-6 text-xs text-slate-400">Ensimmäinen vastaus voi kestää jopa minuutin.</p>
+      <p className="mt-1 pl-6 text-xs text-slate-500">Ensimmäinen vastaus voi kestää jopa minuutin.</p>
+      {/* The shape of the coming answer, so the wait reads as progress rather than an empty space. */}
+      <div aria-hidden="true" className="mt-4 max-w-xl space-y-2.5">
+        <div className="h-3 animate-pulse rounded bg-slate-200" />
+        <div className="h-3 w-11/12 animate-pulse rounded bg-slate-100" />
+        <div className="h-3 w-3/4 animate-pulse rounded bg-slate-100" />
+      </div>
     </div>}
     {reply.status === "error" && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{reply.message}</p>}
     {reply.status === "answer" && <AnswerView response={reply.response} />}
@@ -262,7 +268,7 @@ function ResultCard({ result }: { result: Passage }) {
     <p className={`mt-2 text-sm leading-6 text-slate-700 ${expanded ? "whitespace-pre-line" : "line-clamp-4"}`}>{expanded ? result.text : result.text.replace(/\s*\n\s*/g, " · ").replace(/\s+/g, " ")}</p>
     <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
       <button type="button" onClick={() => setExpanded(!expanded)} aria-expanded={expanded} className="min-h-11 text-sm font-medium text-blue-700 hover:underline">{expanded ? "Näytä vähemmän" : "Näytä koko kohta"}</button>
-      <span className="font-mono text-[11px] text-slate-400" title={result.chunkId}>Tunniste {result.chunkId.slice(0, 12)}</span>
+      <span className="font-mono text-xs text-slate-500" title={result.chunkId}>Tunniste {result.chunkId.slice(0, 12)}</span>
     </div>
   </li>;
 }
