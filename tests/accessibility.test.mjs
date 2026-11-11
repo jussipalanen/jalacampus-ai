@@ -51,3 +51,13 @@ test("full-screen empty state can't overflow upwards and the top bar fits narrow
   assert.match(chat, /<span className="sr-only sm:not-sr-only">Tyhjennä<\/span>/);
   assert.match(source("src/app/layout.tsx"), /interactiveWidget: "resizes-content"/);
 });
+
+test("example questions are available from a ? disclosure in the input bar", () => {
+  const menu = source("src/components/example-questions-menu.tsx");
+  assert.match(menu, /aria-expanded=\{open\} aria-controls=\{panelId\} aria-label="Esimerkkikysymykset"/);
+  // Esc is claimed first (preventDefault) so it closes the menu without leaving full screen.
+  assert.match(menu, /event\.key !== "Escape"\) return;\s*event\.preventDefault\(\);\s*setOpen\(false\);\s*trigger\.current\?\.focus\(\)/);
+  assert.match(menu, /hidden=\{!open\}/);
+  const chat = source("src/components/search-chat.tsx");
+  assert.match(chat, /<ExampleQuestionsMenu questions=\{suggestions\} onPick=\{ask\} disabled=\{loading\} \/>/);
+});
