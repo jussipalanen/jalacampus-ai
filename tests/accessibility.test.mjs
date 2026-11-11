@@ -27,3 +27,18 @@ test("UI text avoids low-contrast slate-400 (placeholders and decorative icons e
   }
   assert.match(source("src/app/globals.css"), /prefers-reduced-motion: reduce/);
 });
+
+test("Keskustelu has a full-screen toggle that Esc closes and that hides the page chrome", () => {
+  const chat = source("src/components/search-chat.tsx");
+  // Toggle pattern: constant visible name (WCAG 2.5.3 Label in Name) plus aria-pressed.
+  assert.match(chat, /aria-pressed=\{fullscreen\}/);
+  assert.match(chat, /<span className="sr-only sm:not-sr-only">Koko näyttö<\/span>/);
+  assert.match(chat, /event\.key === "Escape" && !event\.defaultPrevented\) onFullscreenChange\(false\)/);
+  assert.match(chat, /h-dvh/);
+  // Several answers must not create several identical "Vastaus" landmarks.
+  assert.doesNotMatch(chat, /<section aria-label="Vastaus">/);
+  const shell = source("src/components/app-shell.tsx");
+  assert.match(shell, /const fullscreen = chatFullscreen && view === "Keskustelu"/);
+  for (const part of ["<header", "<nav", "<footer"]) assert.match(shell, new RegExp(`\\{!fullscreen && ${part}`), part);
+  assert.match(shell, /<SearchChat fullscreen=\{fullscreen\} onFullscreenChange=\{setChatFullscreen\} \/>/);
+});
