@@ -13,6 +13,8 @@ Changes are recorded by release version. Update the Unreleased section in featur
 ### Added
 
 - *Tyhjennä* button that clears the whole conversation and cancels a question still in progress.
+- **Kurssit** view: search a synthetic catalog of 18 courses by topic, name or course code, filter by period, and see credits, periods, teaching language, level and recommended prerequisites. Every result names its source; no AI is involved.
+- `GET /api/courses?q=&period=` and `GET /api/courses/{code}` serving the catalog in `data/courses/courses.json`, which is validated when the app loads. Search ignores Finnish question words, tolerates inflected forms and matches course codes exactly; errors are in Finnish.
 
 ## [0.3.0] - 2026-11-05
 

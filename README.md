@@ -21,7 +21,7 @@
 JalaCampus AI is a university-oriented demo that aims to make study guides, course information and campus instructions easier to find. The final concept combines a **Finnish-language chat interface**, **retrieval-augmented generation (RAG)**, **PostgreSQL + pgvector**, and an exchangeable LLM provider.
 
 > [!IMPORTANT]
-> **Current status:** This repository includes a responsive UI and a session-only PDF/TXT document preview. PostgreSQL ingestion, Gemini chunk embeddings and semantic search work, and the **Keskustelu** view answers questions from the synthetic sample documents, both locally and on the [live demo](https://jalacampus-ai.vercel.app). Answers come from [jussi-aibot](https://github.com/jussipalanen/jussi-aibot) on Cloud Run, and every citation is checked against the passages actually retrieved. The interface never fabricates answers or citations: when the documents don't contain the answer, it says so.
+> **Current status:** This repository includes a responsive UI and a session-only PDF/TXT document preview. PostgreSQL ingestion, Gemini chunk embeddings and semantic search work, and the **Keskustelu** view answers questions from the synthetic sample documents, both locally and on the [live demo](https://jalacampus-ai.vercel.app). Answers come from [jussi-aibot](https://github.com/jussipalanen/jussi-aibot) on Cloud Run, and every citation is checked against the passages actually retrieved. The interface never fabricates answers or citations: when the documents don't contain the answer, it says so. The **Kurssit** view searches a synthetic course catalog through a small REST API, without any AI.
 
 ### 🧭 Demo features
 
@@ -32,7 +32,7 @@ JalaCampus AI is a university-oriented demo that aims to make study guides, cour
 | 🗃️ | Persistent document catalog & ingestion | 🗓️ Planned |
 | 🔎 | Semantic search over sample documents | ✅ CLI and local UI (search results, no AI answer) |
 | 🤖 | Grounded AI answers (RAG) | ✅ Live demo and local development (via jussi-aibot on Cloud Run) |
-| 📚 | Course information API | 🗓️ Planned |
+| 📚 | Course catalog API and Finnish course search | ✅ Synthetic catalog, keyword search (no AI) |
 | 🛡️ | Grounded answers and source citations | ✅ Citations checked twice; honest "no answer" |
 | ⚙️ | Configurable model provider | 🗓️ Planned |
 
@@ -176,6 +176,24 @@ First run:
 
 The source is bind-mounted, so edits reload in the browser. Dependencies and `.next` live in named volumes: the container installs from `package-lock.json` with `npm ci`, and only again when the lockfile changes. It runs as the non-root `node` user (uid 1000), so files it writes into the repo belong to you on most Linux and WSL setups. `docker compose down -v` also deletes the database and dependency volumes. These services are for development only; production runs on Vercel with a Neon database (see below).
 
+## 📚 Course catalog
+
+The **Kurssit** view searches a synthetic catalog of 18 courses in [`data/courses/courses.json`](data/courses/courses.json) (format: [`data/courses/README.md`](data/courses/README.md)). Results come straight from the catalog; no language model is involved, so a course that isn't in the file is never shown. Every result names its source, *JalaCampus-korkeakoulun opinto-opas 2026–2027*, and the course code.
+
+| Endpoint | Returns |
+| --- | --- |
+| `GET /api/courses?q=<text>&period=<1–4>` | `{source, query, period, total, results}`. Both parameters are optional; without them the whole catalog is listed in code order |
+| `GET /api/courses/<code>` | `{source, course}`, or 404 `{"error": "Kurssia ei löytynyt.", "code": "not_found"}`. The code is case-insensitive |
+
+Errors are in Finnish: `q` is at most 200 characters, and `period` must be 1–4.
+
+**How search works** (`searchCourses` in `src/lib/courses.ts`):
+- The query is split into lower-case words; Finnish question and filler words such as *mitä*, *onko* and *kursseja* are dropped, so *"Mitä kursseja on tietoturvasta?"* searches for *tietoturvasta*. A query with only such words lists everything.
+- Inflected forms match without a stemmer: two words match when they share a beginning of at least 4 letters that covers three quarters of the shorter word (*ohjelmoinnin* ~ *ohjelmointi*, *koneoppimisen* ~ *koneoppiminen*, but not *tietokannat* ~ *tietokone*). A word of 5+ letters also matches inside a compound (*oppiminen* in *koneoppiminen*). Course codes must match exactly.
+- Each query word counts the weight of the best field it matches: code 10, name 5, keywords 4, unit, level and teaching language 2, description 1. Courses that match more query words come first, then those with a higher total.
+
+**Known limitations:** it is keyword search, not semantic search. Consonant gradation can hide a match (*kielen* doesn't match *kieli*), and colloquial words only work when they are listed as keywords (*matikka*). The catalog is bundled with the app; there is no database table or admin editing. **Keskustelu** doesn't answer course questions yet.
+
 ## ☁️ Vercel deployment
 
 Production: **https://jalacampus-ai.vercel.app**
@@ -222,6 +240,7 @@ src/app/             Next.js app router and Finnish UI
 README.md            Project overview
 ROADMAP.md           Planned increments and acceptance criteria
 compose.yaml, dev     Local Docker services (database, dev server) and helper commands
+data/                Synthetic sample documents, evaluation set and course catalog
 docker/web/          Dev-server image and start script
 docs/                Design docs (M3 grounded-answer plan)
 AGENTS.md            Shared engineering instructions

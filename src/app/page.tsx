@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CourseCatalog } from "@/components/course-catalog";
 import { DocumentLibrary } from "@/components/document-library";
 import { SearchChat } from "@/components/search-chat";
 import { BookOpen, ChevronRight, FileText, GraduationCap, Menu, MessageCircle, Search, Settings2, ShieldCheck, X } from "lucide-react";
@@ -37,7 +38,8 @@ export default function Home() {
         <main className="min-w-0">
           <div hidden={tab !== "Dokumentit"}><DocumentLibrary /></div>
           <div hidden={tab !== "Keskustelu"}><SearchChat /></div>
-          {tab === "Dokumentit" || tab === "Keskustelu" ? null : <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm sm:p-10"><span className="mb-4 inline-flex rounded-xl bg-blue-50 p-3 text-blue-600">{tab === "Kurssit" ? <BookOpen/> : <Settings2/>}</span><h1 className="text-2xl font-semibold">{tab}</h1><p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">Tämä osio kuuluu projektin seuraaviin kehitysvaiheisiin. Toteutus tehdään omassa feature-haarassa ja tarkistetaan pull requestissa.</p><div className="mt-6 inline-flex items-center gap-2 rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-600"><Search size={16}/> Tulossa ROADMAP.md:n mukaisesti</div></section>}
+          <div hidden={tab !== "Kurssit"}><CourseCatalog /></div>
+          {tab !== "Asetukset" ? null : <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm sm:p-10"><span className="mb-4 inline-flex rounded-xl bg-blue-50 p-3 text-blue-600"><Settings2/></span><h1 className="text-2xl font-semibold">{tab}</h1><p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">Tämä osio kuuluu projektin seuraaviin kehitysvaiheisiin. Toteutus tehdään omassa feature-haarassa ja tarkistetaan pull requestissa.</p><div className="mt-6 inline-flex items-center gap-2 rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-600"><Search size={16}/> Tulossa ROADMAP.md:n mukaisesti</div></section>}
           <footer className="mt-5 text-center text-xs text-slate-400">JalaCampus AI · Demo · Jussi Alanen</footer>
         </main>
       </div>
