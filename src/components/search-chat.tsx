@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { AlertTriangle, ChevronDown, ChevronRight, FileText, Info, LoaderCircle, Maximize2, MessageSquareText, Minimize2, SearchX, Send, Trash2 } from "lucide-react";
+import { ExampleQuestionsMenu } from "@/components/example-questions-menu";
 import { orderPassages, stripCitations, typedLength } from "@/lib/answer-format";
 
 type Passage = {
@@ -170,9 +171,10 @@ export function SearchChat({ fullscreen = false, onFullscreenChange }: { fullscr
     <form onSubmit={e => { e.preventDefault(); ask(draft); }} className={`shrink-0 border-t border-slate-100 px-6 sm:px-9 ${active || fullscreen ? "py-3" : "py-5"}`}>
       <div className={column}>
         <label htmlFor="question" className="sr-only">Kirjoita kysymys</label>
-        <div className="flex gap-2 rounded-xl border border-slate-200 bg-white p-2 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+        <div className="relative flex gap-1 rounded-xl border border-slate-200 bg-white p-2 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 sm:gap-2">
+          <ExampleQuestionsMenu questions={suggestions} onPick={ask} disabled={loading} />
           {/* 16px text on phones: iOS Safari zooms the page when a smaller input gets focus. */}
-          <input id="question" value={draft} maxLength={500} onChange={e => setDraft(e.target.value)} placeholder="Kirjoita kysymyksesi..." className="min-w-0 flex-1 px-3 text-base outline-none placeholder:text-slate-400 sm:text-sm" />
+          <input id="question" value={draft} maxLength={500} onChange={e => setDraft(e.target.value)} placeholder="Kirjoita kysymyksesi..." className="min-w-0 flex-1 px-2 text-base outline-none placeholder:text-slate-400 sm:text-sm" />
           <button disabled={!draft.trim() || loading} type="submit" aria-label="Lähetä kysymys" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"><Send size={17} aria-hidden="true" /></button>
         </div>
         <p className="mt-2 text-xs text-slate-500">Kysymys ja löydetyt kohdat lähetetään Google Gemini -palveluun hakua ja vastausta varten. Älä kirjoita henkilötietoja.</p>
