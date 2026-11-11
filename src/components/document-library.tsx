@@ -39,7 +39,7 @@ export function DocumentLibrary() {
   return <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-9" aria-labelledby="documents-heading">
     <div className="flex items-start gap-3">
       <span className="rounded-xl bg-blue-50 p-3 text-blue-600"><FileText aria-hidden="true" /></span>
-      <div><p className="text-sm font-medium text-blue-700">Ylläpidon esikatselu</p><h1 id="documents-heading" className="mt-1 text-2xl font-semibold tracking-tight">Dokumentit</h1><p className="mt-2 text-sm leading-6 text-slate-600">Tarkista testidokumentin teksti ennen myöhempää tallennus- ja hakutoimintoa.</p></div>
+      <div><p className="text-sm font-medium text-blue-700">Ylläpidon esikatselu</p><h1 id="documents-heading" tabIndex={-1} className="mt-1 text-2xl font-semibold tracking-tight">Dokumentit</h1><p className="mt-2 text-sm leading-6 text-slate-600">Tarkista testidokumentin teksti ennen myöhempää tallennus- ja hakutoimintoa.</p></div>
     </div>
     <div className="mt-6 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm leading-6 text-slate-700">Käytä vain keksittyä tai julkista testiaineistoa. Älä lisää oikeita opiskelijatietoja. Tiedosto käsitellään esikatselua varten, mutta sitä ei tallenneta palvelimelle. Luettelo säilyy vain tämän sivun avoinna ollessa.</div>
     <form onSubmit={upload} className="mt-6 space-y-4">
