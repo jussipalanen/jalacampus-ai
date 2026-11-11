@@ -3,6 +3,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { AlertTriangle, ChevronDown, ChevronRight, FileText, Info, LoaderCircle, Maximize2, MessageSquareText, Minimize2, SearchX, Send, Trash2 } from "lucide-react";
 import { ExampleQuestionsMenu } from "@/components/example-questions-menu";
+import { VoiceButton, VoiceStatus, useVoiceInput } from "@/components/voice-input";
 import { orderPassages, stripCitations, typedLength } from "@/lib/answer-format";
 
 type Passage = {
@@ -36,6 +37,8 @@ const suggestions = [
   "Miten opinnäytetyön aihe hyväksytään?",
 ];
 
+const MAX_QUESTION_LENGTH = 500;
+
 const formatScore = (score: number) => score.toLocaleString("fi-FI", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -64,6 +67,7 @@ export function SearchChat({ fullscreen = false, onFullscreenChange }: { fullscr
   const latest = useRef<HTMLDivElement>(null);
   const active = turns.length > 0;
   const loading = turns.at(-1)?.reply.status === "loading";
+  const voice = useVoiceInput(draft, setDraft, MAX_QUESTION_LENGTH);
 
   // Runs for a new question and when its reply arrives: the question goes to the top of the
   // message area with the reply below it. The page itself may still be scrolled to the input.
@@ -85,6 +89,7 @@ export function SearchChat({ fullscreen = false, onFullscreenChange }: { fullscr
   }, [fullscreen, onFullscreenChange]);
 
   function clear() {
+    voice.stop();
     pending.current?.abort();
     setTurns([]);
     // The clear button disappears with the chat, so keep keyboard focus in the section.
@@ -94,6 +99,7 @@ export function SearchChat({ fullscreen = false, onFullscreenChange }: { fullscr
   async function ask(value: string) {
     const question = value.trim();
     if (!question || loading) return;
+    voice.stop();
     const controller = new AbortController();
     pending.current = controller;
     const id = nextId.current++;
@@ -174,9 +180,11 @@ export function SearchChat({ fullscreen = false, onFullscreenChange }: { fullscr
         <div className="relative flex gap-1 rounded-xl border border-slate-200 bg-white p-2 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 sm:gap-2">
           <ExampleQuestionsMenu questions={suggestions} onPick={ask} disabled={loading} />
           {/* 16px text on phones: iOS Safari zooms the page when a smaller input gets focus. */}
-          <input id="question" value={draft} maxLength={500} onChange={e => setDraft(e.target.value)} placeholder="Kirjoita kysymyksesi..." className="min-w-0 flex-1 px-2 text-base outline-none placeholder:text-slate-400 sm:text-sm" />
+          <input id="question" value={draft} maxLength={MAX_QUESTION_LENGTH} onChange={e => setDraft(e.target.value)} placeholder="Kirjoita kysymyksesi..." className="min-w-0 flex-1 px-2 text-base outline-none placeholder:text-slate-400 sm:text-sm" />
+          {voice.supported && <VoiceButton listening={voice.listening} onToggle={voice.toggle} />}
           <button disabled={!draft.trim() || loading} type="submit" aria-label="Lähetä kysymys" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"><Send size={17} aria-hidden="true" /></button>
         </div>
+        {voice.supported && <VoiceStatus listening={voice.listening} message={voice.message} />}
         <p className="mt-2 text-xs text-slate-500">Kysymys ja löydetyt kohdat lähetetään Google Gemini -palveluun hakua ja vastausta varten. Älä kirjoita henkilötietoja.</p>
       </div>
     </form>
