@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
-import { AlertTriangle, ChevronDown, ChevronRight, FileText, Info, LoaderCircle, MessageSquareText, SearchX, Send, Trash2 } from "lucide-react";
+import { AlertTriangle, ChevronDown, ChevronRight, FileText, Info, LoaderCircle, Maximize2, MessageSquareText, Minimize2, SearchX, Send, Trash2 } from "lucide-react";
 import { orderPassages, stripCitations, typedLength } from "@/lib/answer-format";
 
 type Passage = {
@@ -48,7 +48,11 @@ async function postJson(url: string, body: object, signal: AbortSignal) {
   return { response, body: await response.json().catch(() => ({})) };
 }
 
-export function SearchChat() {
+/**
+ * The Keskustelu view. With `onFullscreenChange`, a toggle lets the chat fill the window like a
+ * dedicated chat app; the parent hides the rest of the page while `fullscreen` is true.
+ */
+export function SearchChat({ fullscreen = false, onFullscreenChange }: { fullscreen?: boolean; onFullscreenChange?: (fullscreen: boolean) => void }) {
   const [draft, setDraft] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
   const pending = useRef<AbortController | null>(null);
@@ -68,6 +72,16 @@ export function SearchChat() {
     section.current?.scrollIntoView({ block: "nearest", behavior });
     scroller.current.scrollTo({ top: latest.current.offsetTop - 16, behavior });
   }, [turns]);
+
+  // Esc leaves full screen, unless something inside the chat already handled the key.
+  useEffect(() => {
+    if (!fullscreen || !onFullscreenChange) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !event.defaultPrevented) onFullscreenChange(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [fullscreen, onFullscreenChange]);
 
   function clear() {
     pending.current?.abort();
@@ -104,33 +118,62 @@ export function SearchChat() {
     }
   }
 
-  return <section ref={section} className={`scroll-mt-[6.25rem] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ${active ? "flex h-[calc(100dvh-7.5rem)] max-h-[56rem] min-h-96 flex-col" : ""}`} aria-labelledby="chat-heading">
-    <div className={`shrink-0 border-b border-slate-100 px-6 sm:px-9 ${active ? "py-2" : "py-6"}`}>
-      <div className="flex min-h-11 items-center justify-between gap-3">
-        <div className="flex items-center gap-2 whitespace-nowrap text-sm font-medium text-blue-700"><MessageSquareText size={17} aria-hidden="true" /> Kysy ohjeista</div>
-        {active && <button type="button" onClick={clear} aria-label="Tyhjennä keskustelu" className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"><Trash2 size={16} aria-hidden="true" /> Tyhjennä</button>}
+  // In full screen the content sits in a centred column of readable width, like dedicated chat apps.
+  const column = fullscreen ? "mx-auto w-full max-w-3xl" : "";
+  const frame = fullscreen
+    ? "flex h-dvh flex-col bg-white"
+    : `scroll-mt-[6.25rem] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ${active ? "flex h-[calc(100dvh-7.5rem)] max-h-[56rem] min-h-96 flex-col" : ""}`;
+  const logArea = active
+    ? "relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-4 sm:px-9"
+    : fullscreen ? "flex min-h-0 flex-1 flex-col justify-center overflow-y-auto px-6 py-7 sm:px-9" : "min-h-80 px-6 py-7 sm:px-9";
+
+  return <section ref={section} className={frame} aria-labelledby="chat-heading">
+    <div className={`shrink-0 border-b border-slate-100 px-6 sm:px-9 ${active || fullscreen ? "py-2" : "py-6"}`}>
+      <div className={column}>
+        <div className="flex min-h-11 items-center justify-between gap-3">
+          <div className="flex items-center gap-2 whitespace-nowrap text-sm font-medium text-blue-700"><MessageSquareText size={17} aria-hidden="true" /> Kysy ohjeista</div>
+          <div className="flex items-center gap-2">
+            {active && <button type="button" onClick={clear} aria-label="Tyhjennä keskustelu" className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"><Trash2 size={16} aria-hidden="true" /> Tyhjennä</button>}
+            {/* A toggle: the name stays "Koko näyttö" (what speech users say) and aria-pressed tells the state.
+                On phones the text is visually hidden but still names the button. */}
+            {onFullscreenChange && <button type="button" onClick={() => onFullscreenChange(!fullscreen)} aria-pressed={fullscreen} title={fullscreen ? "Poistu koko näytöstä (Esc)" : undefined} className={`inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-medium transition ${fullscreen ? "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100" : "border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}>
+              {fullscreen ? <Minimize2 size={16} aria-hidden="true" /> : <Maximize2 size={16} aria-hidden="true" />}
+              <span className="sr-only sm:not-sr-only">Koko näyttö</span>
+            </button>}
+          </div>
+        </div>
+        <h1 id="chat-heading" ref={heading} tabIndex={-1} className={active ? "sr-only" : fullscreen ? "sr-only" : "mt-1 text-2xl font-semibold tracking-tight sm:text-3xl"}>Miten voin auttaa?</h1>
+        {!active && !fullscreen && <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">Kysy kuvitteellisen JalaCampus-korkeakoulun ohjeista. Vastaus muodostetaan vain löydetyistä dokumenteista, ja lähteet saat näkyviin painikkeella.</p>}
       </div>
-      <h1 id="chat-heading" ref={heading} tabIndex={-1} className={active ? "sr-only" : "mt-1 text-2xl font-semibold tracking-tight sm:text-3xl"}>Miten voin auttaa?</h1>
-      {!active && <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">Kysy kuvitteellisen JalaCampus-korkeakoulun ohjeista. Vastaus muodostetaan vain löydetyistä dokumenteista, ja lähteet saat näkyviin painikkeella.</p>}
     </div>
 
-    <div ref={scroller} role="log" aria-label="Keskustelu" tabIndex={active ? 0 : undefined} className={active ? "relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-4 sm:px-9" : "min-h-80 px-6 py-7 sm:px-9"}>
-      {active ? <div className="space-y-8">
-        {turns.map((turn, i) => <div key={turn.id} ref={i === turns.length - 1 ? latest : undefined}><TurnView turn={turn} /></div>)}
-      </div> : <>
-        <p className="mb-4 text-sm font-medium text-slate-700">Kokeile esimerkkikysymystä</p>
-        <div className="grid gap-3 sm:grid-cols-2">{suggestions.map(s => <button key={s} type="button" onClick={() => ask(s)} className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 p-4 text-left text-sm text-slate-700 transition hover:border-blue-300 hover:bg-blue-50/40">{s}<ChevronRight size={16} className="shrink-0 text-blue-600" aria-hidden="true" /></button>)}</div>
-      </>}
+    <div ref={scroller} role="log" aria-label="Keskustelu" tabIndex={active ? 0 : undefined} className={logArea}>
+      <div className={column}>
+        {active ? <div className="space-y-8">
+          {turns.map((turn, i) => <div key={turn.id} ref={i === turns.length - 1 ? latest : undefined}><TurnView turn={turn} /></div>)}
+        </div> : <>
+          {/* In full screen the greeting moves here, centred above the examples. */}
+          {fullscreen && <div className="mb-8 text-center">
+            {/* The real h1 stays in the top bar for screen readers; this is its visible copy. */}
+            <p aria-hidden="true" className="text-2xl font-semibold tracking-tight sm:text-3xl">Miten voin auttaa?</p>
+            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-500">Kysy kuvitteellisen JalaCampus-korkeakoulun ohjeista. Vastaus muodostetaan vain löydetyistä dokumenteista, ja lähteet saat näkyviin painikkeella.</p>
+          </div>}
+          <p className="mb-4 text-sm font-medium text-slate-700">Kokeile esimerkkikysymystä</p>
+          <div className="grid gap-3 sm:grid-cols-2">{suggestions.map(s => <button key={s} type="button" onClick={() => ask(s)} className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 p-4 text-left text-sm text-slate-700 transition hover:border-blue-300 hover:bg-blue-50/40">{s}<ChevronRight size={16} className="shrink-0 text-blue-600" aria-hidden="true" /></button>)}</div>
+        </>}
+      </div>
     </div>
 
-    <form onSubmit={e => { e.preventDefault(); ask(draft); }} className={`shrink-0 border-t border-slate-100 px-6 sm:px-9 ${active ? "py-3" : "py-5"}`}>
-      <label htmlFor="question" className="sr-only">Kirjoita kysymys</label>
-      <div className="flex gap-2 rounded-xl border border-slate-200 bg-white p-2 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
-        {/* 16px text on phones: iOS Safari zooms the page when a smaller input gets focus. */}
-        <input id="question" value={draft} maxLength={500} onChange={e => setDraft(e.target.value)} placeholder="Kirjoita kysymyksesi..." className="min-w-0 flex-1 px-3 text-base outline-none placeholder:text-slate-400 sm:text-sm" />
-        <button disabled={!draft.trim() || loading} type="submit" aria-label="Lähetä kysymys" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"><Send size={17} aria-hidden="true" /></button>
+    <form onSubmit={e => { e.preventDefault(); ask(draft); }} className={`shrink-0 border-t border-slate-100 px-6 sm:px-9 ${active || fullscreen ? "py-3" : "py-5"}`}>
+      <div className={column}>
+        <label htmlFor="question" className="sr-only">Kirjoita kysymys</label>
+        <div className="flex gap-2 rounded-xl border border-slate-200 bg-white p-2 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+          {/* 16px text on phones: iOS Safari zooms the page when a smaller input gets focus. */}
+          <input id="question" value={draft} maxLength={500} onChange={e => setDraft(e.target.value)} placeholder="Kirjoita kysymyksesi..." className="min-w-0 flex-1 px-3 text-base outline-none placeholder:text-slate-400 sm:text-sm" />
+          <button disabled={!draft.trim() || loading} type="submit" aria-label="Lähetä kysymys" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"><Send size={17} aria-hidden="true" /></button>
+        </div>
+        <p className="mt-2 text-xs text-slate-500">Kysymys ja löydetyt kohdat lähetetään Google Gemini -palveluun hakua ja vastausta varten. Älä kirjoita henkilötietoja.</p>
       </div>
-      <p className="mt-2 text-xs text-slate-500">Kysymys ja löydetyt kohdat lähetetään Google Gemini -palveluun hakua ja vastausta varten. Älä kirjoita henkilötietoja.</p>
     </form>
   </section>;
 }
@@ -162,10 +205,10 @@ function AnswerView({ response }: { response: ChatResponse }) {
 
   if (response.status === "answered") {
     return <div className="space-y-3">
-      <section aria-label="Vastaus">
+      <div>
         <p className="text-base leading-7 text-slate-800 sm:text-sm"><TypedText text={stripCitations(response.answer, response.citations.length)} /></p>
         <p className="mt-2 text-xs text-slate-500">Tekoälyn muodostama vastaus – tarkista lähteet.</p>
-      </section>
+      </div>
       <SourcesToggle showLabel={`Näytä lähteet (${cited.length})`} hideLabel="Piilota lähteet">
         <PassageList title="Lähteet" passages={cited.map(({ passage }) => passage)} />
         {others.length > 0 && <PassageList title="Muut löydetyt kohdat" note="Näitä kohtia ei käytetty vastauksessa." passages={others} />}

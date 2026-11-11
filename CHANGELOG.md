@@ -20,10 +20,12 @@ Changes are recorded by release version. Update the Unreleased section in featur
 - `GET /api/courses?q=&period=` and `GET /api/courses/{code}` serving the catalog in `data/courses/courses.json`, which is validated when the app loads. Search ignores Finnish question words, tolerates inflected forms and matches course codes exactly; errors are in Finnish.
 - Search visibility: Finnish metadata with canonical URL, Open Graph and X/Twitter cards with a generated share image, icons, web app manifest, `robots.txt`, `sitemap.xml`, schema.org JSON-LD and `/llms.txt` for AI assistants. Preview deployments are `noindex`.
 - *Siirry sisältöön* skip link, and skeleton placeholders while an answer or the first course results load.
+- **Koko näyttö** toggle in Keskustelu: the chat fills the window with a centred message column, like a dedicated chat app. Esc or the same button returns; the conversation and unsent text are kept.
 
 ### Fixed
 
 - Low-contrast grey text (sidebar label, footer, notices, source lines) now meets the 4.5:1 ratio, and English course names are marked `lang="en"`.
+- Each chat answer was a landmark named "Vastaus", so several answers created identical landmarks; answers are now plain groups.
 - Text inputs no longer show two focus outlines (the field's own ring plus a rectangle inside it). The global `:focus-visible` outline moved into Tailwind's base layer, so it stays the default for buttons and links while `outline-none` works where a field draws its own ring.
 
 ## [0.3.0] - 2026-11-05
