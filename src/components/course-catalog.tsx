@@ -58,12 +58,11 @@ export function CourseCatalog() {
         <label htmlFor="course-query" className="sr-only">Hae kursseja</label>
         <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
           <Search size={17} className="shrink-0 text-slate-400" aria-hidden="true" />
-          {/* 16px text on phones: iOS Safari zooms the page when a smaller input gets focus. The wrapper
-              draws the focus ring, so the global :focus-visible outline is turned off here. */}
-          <input id="course-query" type="text" enterKeyHint="search" autoComplete="off" value={query} maxLength={MAX_COURSE_QUERY_LENGTH} onChange={e => setQuery(e.target.value)} placeholder="Esim. ohjelmointi, tietokannat tai TIE210" className="min-h-11 min-w-0 flex-1 bg-transparent text-base outline-none! placeholder:text-slate-400 sm:text-sm" />
+          {/* 16px text on phones: iOS Safari zooms the page when a smaller input gets focus. */}
+          <input id="course-query" type="text" enterKeyHint="search" autoComplete="off" value={query} maxLength={MAX_COURSE_QUERY_LENGTH} onChange={e => setQuery(e.target.value)} placeholder="Esim. ohjelmointi, tietokannat tai TIE210" className="min-h-11 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-slate-400 sm:text-sm" />
         </div>
         <label htmlFor="course-period" className="sr-only">Periodi</label>
-        <select id="course-period" value={period} onChange={e => setPeriod(e.target.value)} className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-700 outline-none! focus:border-blue-500 focus:ring-2 focus:ring-blue-100 sm:text-sm">
+        <select id="course-period" value={period} onChange={e => setPeriod(e.target.value)} className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 sm:text-sm">
           <option value="">Kaikki periodit</option>
           {PERIODS.map(p => <option key={p} value={p}>Periodi {p}</option>)}
         </select>

@@ -16,6 +16,10 @@ Changes are recorded by release version. Update the Unreleased section in featur
 - **Kurssit** view: search a synthetic catalog of 18 courses by topic, name or course code, filter by period, and see credits, periods, teaching language, level and recommended prerequisites. Every result names its source; no AI is involved.
 - `GET /api/courses?q=&period=` and `GET /api/courses/{code}` serving the catalog in `data/courses/courses.json`, which is validated when the app loads. Search ignores Finnish question words, tolerates inflected forms and matches course codes exactly; errors are in Finnish.
 
+### Fixed
+
+- Text inputs no longer show two focus outlines (the field's own ring plus a rectangle inside it). The global `:focus-visible` outline moved into Tailwind's base layer, so it stays the default for buttons and links while `outline-none` works where a field draws its own ring.
+
 ## [0.3.0] - 2026-11-05
 
 Grounded Finnish answers, locally and on the live demo.
