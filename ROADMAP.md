@@ -65,7 +65,8 @@ Agreed in [jussi-aibot PR #34](https://github.com/jussipalanen/jussi-aibot/pull/
 **Acceptance:** The UI shows relevant course results from the demo API, never from fabricated LLM guesses. ✅ Met in the **Kurssit** view; no AI is involved. Answering course questions in **Keskustelu** is not part of M4.
 
 ## ⏭️ M5 — Polish & portfolio (`feat/portfolio-polish`)
-- [ ] Keyboard/accessibility review and mobile check
+- [x] Keyboard/accessibility review and mobile check (Lighthouse and axe on every view, skip link, focus management, contrast, reduced motion; a manual screen-reader pass is still open)
+- [x] Loading states and search visibility (server-rendered course catalog, skeletons, metadata, share image, robots, sitemap, JSON-LD, `llms.txt`)
 - [ ] RAG evaluation results and known limitations in README
 - [ ] Architecture diagram and real screenshots
 - [ ] Deployment guide and demo data reset procedure
