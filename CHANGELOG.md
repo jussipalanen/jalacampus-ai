@@ -4,31 +4,44 @@ Changes are recorded by release version. Update the Unreleased section in featur
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-11
+
+A course catalog, a fuller chat, and an accessibility and search-visibility pass.
+
+### Added
+
+- **Kurssit** view: search a synthetic catalog of 18 courses by topic, name or course code, filter by period, and see credits, periods, teaching language, level and recommended prerequisites. Every result names its source; no AI is involved.
+- `GET /api/courses?q=&period=` and `GET /api/courses/{code}` serving the catalog in `data/courses/courses.json`, which is validated when the app loads. Search ignores Finnish question words, tolerates inflected forms and matches course codes exactly; errors are in Finnish.
+- **Koko näyttö** toggle in Keskustelu: the chat fills the window with a centred message column, like a dedicated chat app. Esc or the same button returns; the conversation and unsent text are kept.
+- **?** button in the Keskustelu input bar that opens the example questions at any time; choosing one asks it.
+- Voice input in Keskustelu: a microphone button dictates the question in Finnish with the browser's speech recognition. Text appears in the input as you speak; the view says that the browser's service (in Chrome, Google) does the recognition. Shown only in browsers that support it.
+- *Tyhjennä* button that clears the whole conversation and cancels a question still in progress.
+- Search visibility: Finnish metadata with canonical URL, Open Graph and X/Twitter cards with a generated share image, icons, web app manifest, `robots.txt`, `sitemap.xml`, schema.org JSON-LD and `/llms.txt` for AI assistants. Preview deployments are `noindex`.
+- *Siirry sisältöön* skip link, and skeleton placeholders while an answer or the first course results load.
+- `.mailmap`, so `git log`, `shortlog` and `blame` show every commit under one author.
+
 ### Changed
 
-- Keskustelu shows the answer as plain text without `[n]` markers, typed out letter by letter (immediately with the reduced-motion setting). Sources open with a button instead of being always visible.
 - Keskustelu keeps earlier questions and answers in a scrollable message area, with the newest question brought into view. The history lives only in the open page, and each question is still answered on its own.
+- Keskustelu shows the answer as plain text without `[n]` markers, typed out letter by letter (immediately with the reduced-motion setting). Sources open with a button instead of being always visible.
 - Keskustelu on phones and tablets: 16 px input text (no iOS zoom on focus), 44 px touch targets, the question scrolls back into view after sending, and the on-screen keyboard closes.
 - Switching views moves focus to the new view's heading and updates the tab title; the menu is a labelled `<nav>` and the mobile menu button reports whether it is open.
 - The course catalog is rendered into the page HTML, so **Kurssit** opens without waiting for the API.
 - With the reduced-motion setting, animations and transitions stop.
-
-### Added
-
-- *Tyhjennä* button that clears the whole conversation and cancels a question still in progress.
-- **Kurssit** view: search a synthetic catalog of 18 courses by topic, name or course code, filter by period, and see credits, periods, teaching language, level and recommended prerequisites. Every result names its source; no AI is involved.
-- `GET /api/courses?q=&period=` and `GET /api/courses/{code}` serving the catalog in `data/courses/courses.json`, which is validated when the app loads. Search ignores Finnish question words, tolerates inflected forms and matches course codes exactly; errors are in Finnish.
-- Search visibility: Finnish metadata with canonical URL, Open Graph and X/Twitter cards with a generated share image, icons, web app manifest, `robots.txt`, `sitemap.xml`, schema.org JSON-LD and `/llms.txt` for AI assistants. Preview deployments are `noindex`.
-- *Siirry sisältöön* skip link, and skeleton placeholders while an answer or the first course results load.
-- Voice input in Keskustelu: a microphone button dictates the question in Finnish with the browser's speech recognition. Text appears in the input as you speak; the view says that the browser's service (in Chrome, Google) does the recognition. Shown only in browsers that support it.
-- **?** button in the Keskustelu input bar that opens the example questions at any time; choosing one asks it.
-- **Koko näyttö** toggle in Keskustelu: the chat fills the window with a centred message column, like a dedicated chat app. Esc or the same button returns; the conversation and unsent text are kept.
 
 ### Fixed
 
 - Low-contrast grey text (sidebar label, footer, notices, source lines) now meets the 4.5:1 ratio, and English course names are marked `lang="en"`.
 - Each chat answer was a landmark named "Vastaus", so several answers created identical landmarks; answers are now plain groups.
 - Text inputs no longer show two focus outlines (the field's own ring plus a rectangle inside it). The global `:focus-visible` outline moved into Tailwind's base layer, so it stays the default for buttons and links while `outline-none` works where a field draws its own ring.
+- In full screen on short or narrow screens, the empty chat no longer slides under the top bar, and the top bar fits 320 px phones.
+
+### Limitations
+
+- Course search is keyword search over a catalog bundled with the app: no database table or admin editing, and Keskustelu doesn't answer course questions.
+- Voice input depends on the browser: Chrome and Edge send the audio to Google and Microsoft, Safari uses Apple's service, and Firefox has no speech recognition. It was tested with a simulated recognizer, not a real microphone.
+- Lighthouse (mobile 99, otherwise 100) and axe results were measured on a local production build; a manual screen-reader pass (NVDA, VoiceOver) is still open.
+- The 0.3.0 limitations still apply: command-line ingestion of `.txt` files only, a small evaluation set, and in-memory rate limiting in the app.
 
 ## [0.3.0] - 2026-11-05
 
