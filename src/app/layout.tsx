@@ -29,6 +29,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: SITE.themeColor,
   colorScheme: "light",
+  // The on-screen keyboard shrinks the layout instead of overlaying it, so the chat's top bar and input
+  // stay visible while typing (Chromium on Android; iOS Safari ignores it).
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
