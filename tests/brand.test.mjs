@@ -14,3 +14,11 @@ test("chat UI labels AI answers and search results honestly", () => {
   assert.match(source, /lähetetään Google Gemini -palveluun/);
   assert.doesNotMatch(source, /dangerouslySetInnerHTML/); // model output is rendered as text only
 });
+
+test("course UI attributes results to the catalog, not to AI", () => {
+  const source = readFileSync(new URL("../src/components/course-catalog.tsx", import.meta.url), "utf8");
+  assert.match(source, /eivät tekoälyltä/);
+  assert.match(source, /Lähde: \{data\.source\.name\}/);
+  assert.match(source, /Lähde: \{source\.name\}, \{course\.code\}/);
+  assert.doesNotMatch(source, /dangerouslySetInnerHTML/);
+});

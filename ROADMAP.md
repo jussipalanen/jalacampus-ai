@@ -57,12 +57,12 @@ Agreed in [jussi-aibot PR #34](https://github.com/jussipalanen/jussi-aibot/pull/
 
 **Acceptance:** The assistant references actual retrieved source documents, refuses to invent citations, and handles API failures safely. ✅ Met locally and in production (https://jalacampus-ai.vercel.app: Neon PostgreSQL, jussi-aibot `jalacampus-prod` client, Vercel Firewall rule in log mode).
 
-## ⏭️ M4 — Course service (`feat/course-catalog`)
-- [ ] Minimal REST API serving synthetic course data
-- [ ] Course search in Finnish with clear source attribution
-- [ ] Automated API tests
+## ✅ M4 — Course service (`feat/course-catalog`, issue #40)
+- [x] Minimal REST API serving synthetic course data (`GET /api/courses?q=&period=`, `GET /api/courses/{code}`; 18 courses in `data/courses/courses.json`, validated on load)
+- [x] Course search in Finnish with clear source attribution (keyword search that tolerates inflection and ignores question words; every result names the catalog and course code)
+- [x] Automated API tests (catalog validation, ranking, period filter, both handlers)
 
-**Acceptance:** The UI shows relevant course results from the demo API, never from fabricated LLM guesses.
+**Acceptance:** The UI shows relevant course results from the demo API, never from fabricated LLM guesses. ✅ Met in the **Kurssit** view; no AI is involved. Answering course questions in **Keskustelu** is not part of M4.
 
 ## ⏭️ M5 — Polish & portfolio (`feat/portfolio-polish`)
 - [ ] Keyboard/accessibility review and mobile check
