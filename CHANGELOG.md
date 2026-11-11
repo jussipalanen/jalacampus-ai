@@ -9,15 +9,21 @@ Changes are recorded by release version. Update the Unreleased section in featur
 - Keskustelu shows the answer as plain text without `[n]` markers, typed out letter by letter (immediately with the reduced-motion setting). Sources open with a button instead of being always visible.
 - Keskustelu keeps earlier questions and answers in a scrollable message area, with the newest question brought into view. The history lives only in the open page, and each question is still answered on its own.
 - Keskustelu on phones and tablets: 16 px input text (no iOS zoom on focus), 44 px touch targets, the question scrolls back into view after sending, and the on-screen keyboard closes.
+- Switching views moves focus to the new view's heading and updates the tab title; the menu is a labelled `<nav>` and the mobile menu button reports whether it is open.
+- The course catalog is rendered into the page HTML, so **Kurssit** opens without waiting for the API.
+- With the reduced-motion setting, animations and transitions stop.
 
 ### Added
 
 - *Tyhjennä* button that clears the whole conversation and cancels a question still in progress.
 - **Kurssit** view: search a synthetic catalog of 18 courses by topic, name or course code, filter by period, and see credits, periods, teaching language, level and recommended prerequisites. Every result names its source; no AI is involved.
 - `GET /api/courses?q=&period=` and `GET /api/courses/{code}` serving the catalog in `data/courses/courses.json`, which is validated when the app loads. Search ignores Finnish question words, tolerates inflected forms and matches course codes exactly; errors are in Finnish.
+- Search visibility: Finnish metadata with canonical URL, Open Graph and X/Twitter cards with a generated share image, icons, web app manifest, `robots.txt`, `sitemap.xml`, schema.org JSON-LD and `/llms.txt` for AI assistants. Preview deployments are `noindex`.
+- *Siirry sisältöön* skip link, and skeleton placeholders while an answer or the first course results load.
 
 ### Fixed
 
+- Low-contrast grey text (sidebar label, footer, notices, source lines) now meets the 4.5:1 ratio, and English course names are marked `lang="en"`.
 - Text inputs no longer show two focus outlines (the field's own ring plus a rectangle inside it). The global `:focus-visible` outline moved into Tailwind's base layer, so it stays the default for buttons and links while `outline-none` works where a field draws its own ring.
 
 ## [0.3.0] - 2026-11-05
