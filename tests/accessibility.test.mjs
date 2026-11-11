@@ -42,3 +42,12 @@ test("Keskustelu has a full-screen toggle that Esc closes and that hides the pag
   for (const part of ["<header", "<nav", "<footer"]) assert.match(shell, new RegExp(`\\{!fullscreen && ${part}`), part);
   assert.match(shell, /<SearchChat fullscreen=\{fullscreen\} onFullscreenChange=\{setChatFullscreen\} \/>/);
 });
+
+test("full-screen empty state can't overflow upwards and the top bar fits narrow phones", () => {
+  const chat = source("src/components/search-chat.tsx");
+  // justify-center on a scrolling column pushes overflow above the top edge, out of reach.
+  assert.doesNotMatch(chat, /flex-col justify-center overflow-y-auto/);
+  assert.match(chat, /fullscreen && !active \? "my-auto" : ""/);
+  assert.match(chat, /<span className="sr-only sm:not-sr-only">Tyhjennä<\/span>/);
+  assert.match(source("src/app/layout.tsx"), /interactiveWidget: "resizes-content"/);
+});

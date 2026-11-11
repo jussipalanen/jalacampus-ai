@@ -125,15 +125,16 @@ export function SearchChat({ fullscreen = false, onFullscreenChange }: { fullscr
     : `scroll-mt-[6.25rem] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ${active ? "flex h-[calc(100dvh-7.5rem)] max-h-[56rem] min-h-96 flex-col" : ""}`;
   const logArea = active
     ? "relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-4 sm:px-9"
-    : fullscreen ? "flex min-h-0 flex-1 flex-col justify-center overflow-y-auto px-6 py-7 sm:px-9" : "min-h-80 px-6 py-7 sm:px-9";
+    : fullscreen ? "flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-6 py-7 sm:px-9" : "min-h-80 px-6 py-7 sm:px-9";
 
   return <section ref={section} className={frame} aria-labelledby="chat-heading">
     <div className={`shrink-0 border-b border-slate-100 px-6 sm:px-9 ${active || fullscreen ? "py-2" : "py-6"}`}>
       <div className={column}>
         <div className="flex min-h-11 items-center justify-between gap-3">
-          <div className="flex items-center gap-2 whitespace-nowrap text-sm font-medium text-blue-700"><MessageSquareText size={17} aria-hidden="true" /> Kysy ohjeista</div>
-          <div className="flex items-center gap-2">
-            {active && <button type="button" onClick={clear} aria-label="Tyhjennä keskustelu" className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"><Trash2 size={16} aria-hidden="true" /> Tyhjennä</button>}
+          <div className="flex min-w-0 items-center gap-2 text-sm font-medium text-blue-700"><MessageSquareText size={17} className="shrink-0" aria-hidden="true" /> <span className="truncate">Kysy ohjeista</span></div>
+          {/* On narrow phones both buttons are icon-only so the bar never runs out of room. */}
+          <div className="flex shrink-0 items-center gap-2">
+            {active && <button type="button" onClick={clear} aria-label="Tyhjennä keskustelu" className="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"><Trash2 size={16} aria-hidden="true" /> <span className="sr-only sm:not-sr-only">Tyhjennä</span></button>}
             {/* A toggle: the name stays "Koko näyttö" (what speech users say) and aria-pressed tells the state.
                 On phones the text is visually hidden but still names the button. */}
             {onFullscreenChange && <button type="button" onClick={() => onFullscreenChange(!fullscreen)} aria-pressed={fullscreen} title={fullscreen ? "Poistu koko näytöstä (Esc)" : undefined} className={`inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-medium transition ${fullscreen ? "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100" : "border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}>
@@ -148,7 +149,9 @@ export function SearchChat({ fullscreen = false, onFullscreenChange }: { fullscr
     </div>
 
     <div ref={scroller} role="log" aria-label="Keskustelu" tabIndex={active ? 0 : undefined} className={logArea}>
-      <div className={column}>
+      {/* my-auto centres the empty state only while it fits; on short screens it starts at the top and
+          scrolls, instead of overflowing upwards under the top bar as justify-center would. */}
+      <div className={`${column} ${fullscreen && !active ? "my-auto" : ""}`}>
         {active ? <div className="space-y-8">
           {turns.map((turn, i) => <div key={turn.id} ref={i === turns.length - 1 ? latest : undefined}><TurnView turn={turn} /></div>)}
         </div> : <>
