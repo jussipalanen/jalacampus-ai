@@ -194,6 +194,35 @@ Errors are in Finnish: `q` is at most 200 characters, and `period` must be 1–4
 
 **Known limitations:** it is keyword search, not semantic search. Consonant gradation can hide a match (*kielen* doesn't match *kieli*), and colloquial words only work when they are listed as keywords (*matikka*). The catalog is bundled with the app; there is no database table or admin editing. **Keskustelu** doesn't answer course questions yet.
 
+## ♿ Accessibility, loading and search visibility
+
+Checked on 2026-11-11 against a local production build (`next start`) with Lighthouse 12 and axe-core 4.14 (WCAG 2.2 A/AA rules plus best practices), on desktop and an emulated iPhone 13:
+
+| | Performance | Accessibility | Best Practices | SEO |
+| --- | --- | --- | --- | --- |
+| Mobile | 99 | 100 | 100 | 100 |
+| Desktop | 100 | 100 | 100 | 100 |
+
+axe reports no violations in any view (Keskustelu before and after a question, Dokumentit, Kurssit with results and with none, Asetukset). Lab scores vary between runs and networks; the live site's PageSpeed Insights result can differ.
+
+**Accessibility**
+- A *Siirry sisältöön* skip link appears on the first Tab press.
+- The menu is a labelled `<nav>`, the current view has `aria-current="page"`, and the mobile menu button reports `aria-expanded`.
+- Switching views moves focus to the new view's heading and updates the browser tab title, so screen-reader users hear where they are.
+- Text meets the 4.5:1 contrast ratio; English course names carry `lang="en"` so screen readers pronounce them correctly.
+- With the reduced-motion setting, spinners, skeleton pulses, transitions and smooth scrolling stop, and answers appear at once.
+- Automated tools find only part of accessibility problems. Keyboard use was checked by hand; a full screen-reader test (NVDA, VoiceOver) has not been done yet.
+
+**Loading:** the page is prerendered, and the course catalog is rendered into the HTML, so **Kurssit** opens without waiting for the API. While an answer or the first results load, skeleton placeholders show the shape of what is coming. There is no full-screen splash screen: it would hide content that is already available and lower the performance score.
+
+**Search engines and AI assistants (SEO and GEO)**
+- Metadata: Finnish title and description, canonical URL, Open Graph and X/Twitter cards with a generated share image (`/opengraph-image`), theme colour, icons (`/icon.svg`, `/apple-icon`) and a web app manifest.
+- `/robots.txt` and `/sitemap.xml`. Production may be indexed except the POST-only API routes; Vercel preview deployments send `noindex` and disallow everything, so they never compete with production.
+- schema.org JSON-LD (`WebSite` and `WebApplication`) in the page head.
+- [`/llms.txt`](public/llms.txt): a plain-language summary for AI assistants and answer engines. It says that the institution and its data are fictional, explains how answers are grounded and lists the public course API.
+- The canonical origin comes from `NEXT_PUBLIC_SITE_URL`, then Vercel's production URL, then `https://jalacampus-ai.vercel.app` (`src/lib/site.ts`).
+- All views share one URL, because they are switched in place; only the front page is in the sitemap.
+
 ## ☁️ Vercel deployment
 
 Production: **https://jalacampus-ai.vercel.app**
@@ -234,7 +263,8 @@ The Release workflow checks that the tagged commit is on `main`, the tag matches
 ## 🗂️ Project structure
 
 ```text
-src/app/             Next.js app router and Finnish UI
+src/app/             Next.js app router and Finnish UI; metadata, icons, robots, sitemap and manifest
+public/llms.txt      Summary of the site for AI assistants
 .github/workflows/   Lightweight validation (lint, types, tests, build)
 .github/             Pull request template and CODEOWNERS
 README.md            Project overview
