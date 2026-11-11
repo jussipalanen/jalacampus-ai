@@ -20,6 +20,7 @@ Changes are recorded by release version. Update the Unreleased section in featur
 - `GET /api/courses?q=&period=` and `GET /api/courses/{code}` serving the catalog in `data/courses/courses.json`, which is validated when the app loads. Search ignores Finnish question words, tolerates inflected forms and matches course codes exactly; errors are in Finnish.
 - Search visibility: Finnish metadata with canonical URL, Open Graph and X/Twitter cards with a generated share image, icons, web app manifest, `robots.txt`, `sitemap.xml`, schema.org JSON-LD and `/llms.txt` for AI assistants. Preview deployments are `noindex`.
 - *Siirry sisältöön* skip link, and skeleton placeholders while an answer or the first course results load.
+- Voice input in Keskustelu: a microphone button dictates the question in Finnish with the browser's speech recognition. Text appears in the input as you speak; the view says that the browser's service (in Chrome, Google) does the recognition. Shown only in browsers that support it.
 - **?** button in the Keskustelu input bar that opens the example questions at any time; choosing one asks it.
 - **Koko näyttö** toggle in Keskustelu: the chat fills the window with a centred message column, like a dedicated chat app. Esc or the same button returns; the conversation and unsent text are kept.
 
