@@ -1,0 +1,214 @@
+{
+  "source": {
+    "id": "jalacampus-opinto-opas-2026-2027",
+    "name": "JalaCampus-korkeakoulun opinto-opas 2026–2027",
+    "note": "Kuvitteellinen esimerkkiaineisto. Kurssit, koodit ja laajuudet on keksitty tätä demoa varten."
+  },
+  "courses": [
+    {
+      "code": "OHJ101",
+      "name": "Ohjelmoinnin perusteet",
+      "credits": 5,
+      "periods": [1],
+      "language": "fi",
+      "level": "basic",
+      "unit": "Tietojenkäsittely",
+      "keywords": ["ohjelmointi", "Python", "koodaus", "algoritmit"],
+      "description": "Johdatus ohjelmointiin Python-kielellä: muuttujat, ehtolauseet, silmukat, funktiot ja yksinkertaiset tietorakenteet. Kurssilla tehdään viikoittaisia ohjelmointitehtäviä."
+    },
+    {
+      "code": "OHJ201",
+      "name": "Olio-ohjelmointi",
+      "credits": 5,
+      "periods": [2],
+      "language": "fi",
+      "level": "intermediate",
+      "unit": "Tietojenkäsittely",
+      "keywords": ["ohjelmointi", "TypeScript", "luokat", "rajapinnat", "testaus"],
+      "description": "Olio-ohjelmoinnin käsitteet TypeScript-kielellä: luokat, rajapinnat, kapselointi ja yksikkötestaus. Harjoitustyönä toteutetaan pieni komentorivisovellus.",
+      "prerequisites": ["OHJ101"]
+    },
+    {
+      "code": "TIE210",
+      "name": "Tietokannat",
+      "credits": 5,
+      "periods": [2],
+      "language": "fi",
+      "level": "intermediate",
+      "unit": "Tietojenkäsittely",
+      "keywords": ["SQL", "PostgreSQL", "tietomallinnus", "relaatiotietokanta"],
+      "description": "Relaatiotietokantojen suunnittelu ja käyttö: tietomallinnus, normalisointi, SQL-kyselyt ja transaktiot. Harjoituksissa käytetään PostgreSQL-tietokantaa.",
+      "prerequisites": ["OHJ101"]
+    },
+    {
+      "code": "TIE220",
+      "name": "Tietoverkot",
+      "credits": 5,
+      "periods": [3],
+      "language": "fi",
+      "level": "intermediate",
+      "unit": "Tietojenkäsittely",
+      "keywords": ["verkot", "internet", "TCP/IP", "protokollat"],
+      "description": "Tietoverkkojen rakenne ja toiminta: kerrosmalli, IP-osoitteet, reititys, TCP ja HTTP. Laboratoriotöissä tutkitaan verkkoliikennettä."
+    },
+    {
+      "code": "TIE230",
+      "name": "Tietoturvan perusteet",
+      "credits": 5,
+      "periods": [3],
+      "language": "fi",
+      "level": "basic",
+      "unit": "Tietojenkäsittely",
+      "keywords": ["tietoturva", "kyberturvallisuus", "salaus", "salasanat", "tietosuoja"],
+      "description": "Tietoturvan keskeiset käsitteet: uhat, riskienhallinta, salauksen perusteet, tunnistautuminen ja turvallinen salasanojen käsittely. Kurssi sopii kaikille opiskelijoille."
+    },
+    {
+      "code": "TIE310",
+      "name": "Koneoppiminen",
+      "credits": 5,
+      "periods": [4],
+      "language": "fi",
+      "level": "advanced",
+      "unit": "Tietojenkäsittely",
+      "keywords": ["tekoäly", "neuroverkot", "luokittelu", "regressio"],
+      "description": "Ohjatun ja ohjaamattoman oppimisen menetelmät, mallien arviointi ja yleisimmät virhelähteet. Harjoitukset tehdään Pythonilla avoimilla esimerkkiaineistoilla.",
+      "prerequisites": ["OHJ101", "TIL110"]
+    },
+    {
+      "code": "TIE320",
+      "name": "Web-sovelluskehitys",
+      "credits": 5,
+      "periods": [3, 4],
+      "language": "fi",
+      "level": "intermediate",
+      "unit": "Tietojenkäsittely",
+      "keywords": ["web", "verkkosivut", "JavaScript", "React", "frontend"],
+      "description": "Nykyaikaisen web-sovelluksen toteutus: HTML, CSS, JavaScript, React-komponentit ja palvelinrajapinnat. Kurssilla rakennetaan oma sovellus vaiheittain.",
+      "prerequisites": ["OHJ201"]
+    },
+    {
+      "code": "TIE330",
+      "name": "Ohjelmistotuotantoprojekti",
+      "credits": 10,
+      "periods": [3, 4],
+      "language": "fi",
+      "level": "advanced",
+      "unit": "Tietojenkäsittely",
+      "keywords": ["projekti", "ryhmätyö", "Scrum", "ketterä kehitys"],
+      "description": "Ryhmissä tehtävä ohjelmistoprojekti kuvitteelliselle asiakkaalle. Kurssilla harjoitellaan vaatimusmäärittelyä, ketterää kehitystä, versionhallintaa ja katselmointia.",
+      "prerequisites": ["OHJ201", "TIE210"]
+    },
+    {
+      "code": "MAT101",
+      "name": "Matematiikan perusteet",
+      "credits": 5,
+      "periods": [1],
+      "language": "fi",
+      "level": "basic",
+      "unit": "Matematiikka ja tilastotiede",
+      "keywords": ["matematiikka", "matikka", "funktiot", "derivaatta", "algebra"],
+      "description": "Korkeakouluopintojen matemaattiset perustaidot: yhtälöt, funktiot, logaritmit, derivaatta ja integraalin alkeet."
+    },
+    {
+      "code": "MAT201",
+      "name": "Lineaarialgebra",
+      "credits": 5,
+      "periods": [2],
+      "language": "fi",
+      "level": "intermediate",
+      "unit": "Matematiikka ja tilastotiede",
+      "keywords": ["matematiikka", "matriisit", "vektorit"],
+      "description": "Vektorit, matriisit, lineaariset yhtälöryhmät, determinantit ja ominaisarvot sekä niiden sovelluksia tietojenkäsittelyssä.",
+      "prerequisites": ["MAT101"]
+    },
+    {
+      "code": "TIL110",
+      "name": "Tilastotieteen johdantokurssi",
+      "credits": 5,
+      "periods": [2],
+      "language": "fi",
+      "level": "basic",
+      "unit": "Matematiikka ja tilastotiede",
+      "keywords": ["tilastot", "todennäköisyys", "otanta", "hypoteesit"],
+      "description": "Tilastollisen ajattelun perusteet: aineiston kuvailu, todennäköisyys, otanta, luottamusvälit ja yksinkertaiset tilastolliset testit."
+    },
+    {
+      "code": "TIL210",
+      "name": "Data-analyysi ja visualisointi",
+      "credits": 5,
+      "periods": [3],
+      "language": "fi",
+      "level": "intermediate",
+      "unit": "Matematiikka ja tilastotiede",
+      "keywords": ["data", "visualisointi", "kaaviot", "Python"],
+      "description": "Aineiston siivous, analyysi ja selkeiden kaavioiden tekeminen Pythonilla. Kurssilla harjoitellaan myös tulosten raportointia.",
+      "prerequisites": ["TIL110"]
+    },
+    {
+      "code": "KIE110",
+      "name": "Academic Writing in English",
+      "credits": 3,
+      "periods": [1, 2],
+      "language": "en",
+      "level": "basic",
+      "unit": "Kielet ja viestintä",
+      "keywords": ["englanti", "kirjoittaminen", "akateeminen kirjoittaminen"],
+      "description": "Englanninkielinen kurssi akateemisesta kirjoittamisesta: tekstin rakenne, lähteiden käyttö ja viittaaminen sekä tiivistelmän kirjoittaminen."
+    },
+    {
+      "code": "KIE120",
+      "name": "Ruotsin kieli, kirjallinen ja suullinen viestintä",
+      "credits": 5,
+      "periods": [3],
+      "language": "sv",
+      "level": "basic",
+      "unit": "Kielet ja viestintä",
+      "keywords": ["ruotsi", "virkamiesruotsi", "toinen kotimainen kieli"],
+      "description": "Ruotsin kielen kirjallinen ja suullinen viestintä oman alan tilanteissa. Kurssi sisältää kuvitteellisen kielitaitokokeen."
+    },
+    {
+      "code": "KIE130",
+      "name": "Viestintä ja esiintyminen",
+      "credits": 3,
+      "periods": [4],
+      "language": "fi",
+      "level": "basic",
+      "unit": "Kielet ja viestintä",
+      "keywords": ["viestintä", "esiintyminen", "puheviestintä"],
+      "description": "Puhe- ja ryhmäviestinnän harjoituksia: esityksen suunnittelu, palautteen antaminen ja esiintymisjännityksen hallinta."
+    },
+    {
+      "code": "LII110",
+      "name": "Entrepreneurship and Innovation",
+      "credits": 5,
+      "periods": [4],
+      "language": "en",
+      "level": "basic",
+      "unit": "Liiketoiminta",
+      "keywords": ["yrittäjyys", "startup", "liiketoiminta", "innovaatiot"],
+      "description": "Englanninkielinen kurssi liiketoimintaidean kehittämisestä: asiakastarpeen tunnistaminen, ansaintamalli ja idean esittely kuvitteelliselle sijoittajaraadille."
+    },
+    {
+      "code": "YLE100",
+      "name": "Opiskelutaidot ja orientaatio",
+      "credits": 2,
+      "periods": [1],
+      "language": "fi",
+      "level": "basic",
+      "unit": "Yleiset opinnot",
+      "keywords": ["orientaatio", "opiskelu", "HOPS", "opintosuunnitelma"],
+      "description": "Opintojen aloitus: korkeakoulun palvelut, henkilökohtaisen opintosuunnitelman (HOPS) laatiminen ja opiskelutaidot."
+    },
+    {
+      "code": "YLE300",
+      "name": "Opinnäytetyön menetelmät",
+      "credits": 5,
+      "periods": [1, 2],
+      "language": "fi",
+      "level": "advanced",
+      "unit": "Yleiset opinnot",
+      "keywords": ["opinnäytetyö", "tutkimus", "tutkimusmenetelmät"],
+      "description": "Opinnäytetyön suunnittelu: tutkimuskysymys, menetelmän valinta, aineiston keruu, tutkimusetiikka ja tutkimussuunnitelman kirjoittaminen."
+    }
+  ]
+}
