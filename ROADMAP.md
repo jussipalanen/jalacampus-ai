@@ -66,7 +66,7 @@ Agreed in [jussi-aibot PR #34](https://github.com/jussipalanen/jussi-aibot/pull/
 
 ## ⏭️ M5 — Polish & portfolio (`feat/portfolio-polish`)
 - [x] Keyboard/accessibility review and mobile check (Lighthouse and axe on every view, skip link, focus management, contrast, reduced motion; a manual screen-reader pass is still open)
-- [x] Loading states and search visibility (server-rendered course catalog, skeletons, metadata, share image, robots, sitemap, JSON-LD; AI crawlers blocked in robots.txt)
+- [x] Loading states and search visibility (server-rendered course catalog, skeletons, metadata, share image, robots, JSON-LD; later set to `noindex` everywhere with AI crawlers blocked)
 - [x] Asetukset: UI preferences stored only in the browser (typing animation, sources open, speech input, text size) and a *Tietoa palvelusta* section on data and services
 - [ ] RAG evaluation results and known limitations in README
 - [ ] Architecture diagram and real screenshots

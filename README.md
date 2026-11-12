@@ -255,12 +255,12 @@ axe reports no violations in any view (Keskustelu before and after a question, D
 
 **Loading:** the page is prerendered, and the course catalog is rendered into the HTML, so **Kurssit** opens without waiting for the API. While an answer or the first results load, skeleton placeholders show the shape of what is coming. There is no full-screen splash screen: it would hide content that is already available and lower the performance score.
 
-**Search engines and AI assistants (SEO and GEO)**
+**Search engines and AI crawlers**
 - Metadata: Finnish title and description, canonical URL, Open Graph and X/Twitter cards with a generated share image (`/opengraph-image`), theme colour, icons (`/icon.svg`, `/apple-icon`) and a web app manifest.
-- `/robots.txt` and `/sitemap.xml`. Search engines may index production except the POST-only API routes. AI crawlers that collect content for training, AI answers or AI search (OpenAI, Anthropic, Google-Extended, Common Crawl, Perplexity and others; list in `src/app/robots.ts`) are disallowed everywhere. robots.txt is voluntary, and `Google-Extended` covers Gemini but not AI Overviews in Google Search, which use Googlebot; Vercel preview deployments send `noindex` and disallow everything, so they never compete with production.
+- **Not in search results:** every response carries `noindex` (page metadata plus an `X-Robots-Tag: noindex, nofollow, noarchive, noimageindex` header, set in `next.config.ts`), in production and previews alike, and there is no sitemap. `/robots.txt` still lets search engines crawl, except the POST-only API routes, because a crawler blocked by robots.txt never sees `noindex` and a linked URL could stay listed. AI crawlers that collect content for training, AI answers or AI search (OpenAI, Anthropic, Google-Extended, Common Crawl, Perplexity and others; list in `src/app/robots.ts`) are disallowed entirely. robots.txt is voluntary.
 - schema.org JSON-LD (`WebSite` and `WebApplication`) in the page head.
 - The canonical origin comes from `NEXT_PUBLIC_SITE_URL`, then Vercel's production URL, then `https://jalacampus-demo.jussialanen.com` (`src/lib/site.ts`).
-- All views share one URL, because they are switched in place; only the front page is in the sitemap.
+- All views share one URL, because they are switched in place.
 
 </details>
 
@@ -311,7 +311,7 @@ The Release workflow checks that the tagged commit is on `main`, the tag matches
 <summary><h2>🗂️ Project structure</h2></summary>
 
 ```text
-src/app/             Next.js app router and Finnish UI; metadata, icons, robots, sitemap and manifest
+src/app/             Next.js app router and Finnish UI; metadata, icons, robots and manifest
 .github/workflows/   Lightweight validation (lint, types, tests, build)
 .github/             Pull request template and CODEOWNERS
 README.md            Project overview

@@ -1,4 +1,4 @@
-/** Public facts about the site, shared by metadata, robots, sitemap, manifest and structured data. */
+/** Public facts about the site, shared by metadata, robots, manifest and structured data. */
 
 const PRODUCTION_URL = "https://jalacampus-demo.jussialanen.com";
 
@@ -13,9 +13,8 @@ export function siteUrl(env: Record<string, string | undefined> = process.env): 
   return (configured || PRODUCTION_URL).replace(/\/+$/, "");
 }
 
-/** Search engines may index only the production deployment; previews and local builds on Vercel stay out. */
-export const allowIndexing = (env: Record<string, string | undefined> = process.env) =>
-  env.VERCEL_ENV === undefined || env.VERCEL_ENV === "production";
+/** The demo stays out of search results everywhere: production, previews and local builds. */
+export const NO_INDEX = "noindex, nofollow, noarchive, noimageindex";
 
 export const SITE = {
   name: "JalaCampus AI",

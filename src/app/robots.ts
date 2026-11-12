@@ -1,10 +1,8 @@
 import type { MetadataRoute } from "next";
-import { allowIndexing, siteUrl } from "../lib/site.ts";
 
 /**
- * Crawlers that collect content for AI training, AI answers or AI search. Search engines may index the
- * demo; these may not. robots.txt is voluntary, so this only stops crawlers that honour it.
- * Google-Extended covers Gemini, not Search: AI Overviews use Googlebot and can't be excluded separately.
+ * Crawlers that collect content for AI training, AI answers or AI search. They may not crawl anything.
+ * robots.txt is voluntary, so this only stops crawlers that honour it.
  */
 export const AI_CRAWLERS = [
   "GPTBot", "ChatGPT-User", "OAI-SearchBot", // OpenAI
@@ -17,18 +15,16 @@ export const AI_CRAWLERS = [
 ];
 
 /**
- * Production may be crawled by search engines, except the POST-only API routes; AI crawlers are blocked.
- * Preview deployments are kept out entirely, so their URLs don't compete with production in search results.
+ * The site is kept out of search results by `noindex` on every response (page metadata and the
+ * X-Robots-Tag header in next.config.ts), not by robots.txt: a search engine must be allowed to crawl a page
+ * to see its `noindex`, otherwise a linked URL can stay listed. So search engines may crawl (except the
+ * POST-only APIs), and AI crawlers are disallowed entirely. There is no sitemap.
  */
 export default function robots(): MetadataRoute.Robots {
-  const url = siteUrl();
-  if (!allowIndexing()) return { rules: { userAgent: "*", disallow: "/" } };
   return {
     rules: [
       { userAgent: AI_CRAWLERS, disallow: "/" },
       { userAgent: "*", allow: "/", disallow: ["/api/chat", "/api/search", "/api/documents/"] },
     ],
-    sitemap: `${url}/sitemap.xml`,
-    host: url,
   };
 }
