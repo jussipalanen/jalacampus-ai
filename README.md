@@ -257,9 +257,8 @@ axe reports no violations in any view (Keskustelu before and after a question, D
 
 **Search engines and AI assistants (SEO and GEO)**
 - Metadata: Finnish title and description, canonical URL, Open Graph and X/Twitter cards with a generated share image (`/opengraph-image`), theme colour, icons (`/icon.svg`, `/apple-icon`) and a web app manifest.
-- `/robots.txt` and `/sitemap.xml`. Production may be indexed except the POST-only API routes; Vercel preview deployments send `noindex` and disallow everything, so they never compete with production.
+- `/robots.txt` and `/sitemap.xml`. Search engines may index production except the POST-only API routes. AI crawlers that collect content for training, AI answers or AI search (OpenAI, Anthropic, Google-Extended, Common Crawl, Perplexity and others; list in `src/app/robots.ts`) are disallowed everywhere. robots.txt is voluntary, and `Google-Extended` covers Gemini but not AI Overviews in Google Search, which use Googlebot; Vercel preview deployments send `noindex` and disallow everything, so they never compete with production.
 - schema.org JSON-LD (`WebSite` and `WebApplication`) in the page head.
-- [`/llms.txt`](public/llms.txt): a plain-language summary for AI assistants and answer engines. It says that the institution and its data are fictional, explains how answers are grounded and lists the public course API.
 - The canonical origin comes from `NEXT_PUBLIC_SITE_URL`, then Vercel's production URL, then `https://jalacampus-demo.jussialanen.com` (`src/lib/site.ts`).
 - All views share one URL, because they are switched in place; only the front page is in the sitemap.
 
@@ -313,7 +312,6 @@ The Release workflow checks that the tagged commit is on `main`, the tag matches
 
 ```text
 src/app/             Next.js app router and Finnish UI; metadata, icons, robots, sitemap and manifest
-public/llms.txt      Summary of the site for AI assistants
 .github/workflows/   Lightweight validation (lint, types, tests, build)
 .github/             Pull request template and CODEOWNERS
 README.md            Project overview

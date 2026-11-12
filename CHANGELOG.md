@@ -8,6 +8,11 @@ Changes are recorded by release version. Update the Unreleased section in featur
 
 - Vercel functions run in London (`lhr1`) instead of US East, next to the Neon database and close to jussi-aibot in Finland.
 - The jussi-aibot answer timeout is 35 s instead of 60 s, matching jussi-aibot's own limit of about 30 s per answer.
+- `robots.txt` disallows AI crawlers (OpenAI, Anthropic, Google-Extended, Common Crawl, Perplexity and others); search engines may still index the site.
+
+### Removed
+
+- `/llms.txt`, the site summary for AI assistants.
 
 ## [0.4.0] - 2026-11-11
 
