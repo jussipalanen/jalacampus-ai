@@ -36,7 +36,7 @@ export function parseSimilarityFloor(value: string | undefined): number {
   return floor;
 }
 
-/** Framework-independent handler for POST /api/chat; user-facing messages are Finnish. */
+/** Framework-independent handler for POST /api/grounded-answer; user-facing messages are Finnish. */
 export async function handleChatRequest(request: Request, deps: ChatApiDeps): Promise<Response> {
   if (!deps.enabled) {
     return errorResponse("Tekoälyvastaukset eivät ole käytössä tässä ympäristössä.", 503, "disabled");

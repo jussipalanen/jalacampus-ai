@@ -8,7 +8,7 @@ const result = (id, score, sourceName = "kirjasto.txt") =>
   ({ chunkId: id, documentId: `doc-${id}`, sourceName, ordinal: 0, text: `Teksti ${id}`, score });
 const RESULTS = [result("a", 0.8), result("b", 0.65, "liikunta.txt"), result("c", 0.5)];
 
-const post = (body, headers = {}) => new Request("http://localhost/api/chat", {
+const post = (body, headers = {}) => new Request("http://localhost/api/grounded-answer", {
   method: "POST",
   headers: { "content-type": "application/json", ...headers },
   body: typeof body === "string" ? body : JSON.stringify(body),

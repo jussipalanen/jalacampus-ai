@@ -1,4 +1,4 @@
-// Runs data/eval/questions.json through the /api/chat flow against real Gemini and jussi-aibot.
+// Runs data/eval/questions.json through the /api/grounded-answer flow against real Gemini and jussi-aibot.
 // Usage: npm run eval [-- <case-id> ...]   (uses EVAL_DATABASE_URL or TEST_DATABASE_URL; the database is RESET)
 // Sends synthetic sample text and questions to Gemini; costs roughly two Gemini calls per case.
 import { readFileSync } from "node:fs";
@@ -54,7 +54,7 @@ try {
     let body: EvalResponse = { status: "unavailable", answer: "", citations: [], passages: [] };
     for (let attempt = 0; attempt < 3; attempt++) {
       const response = await handleChatRequest(
-        new Request("http://eval.local/api/chat", { method: "POST", body: JSON.stringify({ question: evalCase.question }) }),
+        new Request("http://eval.local/api/grounded-answer", { method: "POST", body: JSON.stringify({ question: evalCase.question }) }),
         { enabled: true, allow: () => true, floor, search: async () => results, answer: (q, p) => answers.answer(q, p) },
       );
       if (response.ok) body = await response.json() as EvalResponse;

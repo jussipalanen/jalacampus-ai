@@ -33,7 +33,7 @@ test("robots.txt blocks AI crawlers but lets search engines crawl to see noindex
     assert.deepEqual(ai, { userAgent: AI_CRAWLERS, disallow: "/" });
     assert.equal(everyone.userAgent, "*");
     assert.equal(everyone.allow, "/"); // a crawler blocked here would never see noindex
-    assert.deepEqual(everyone.disallow, ["/api/chat", "/api/search", "/api/documents/"]);
+    assert.deepEqual(everyone.disallow, ["/api/grounded-answer", "/api/search", "/api/documents/"]);
   }
   for (const bot of ["GPTBot", "ClaudeBot", "Google-Extended", "CCBot", "PerplexityBot"]) assert.ok(AI_CRAWLERS.includes(bot), bot);
   assert.equal(robots().sitemap, undefined);
