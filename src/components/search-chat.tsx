@@ -3,6 +3,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { AlertTriangle, ChevronDown, ChevronRight, FileText, Info, LoaderCircle, Maximize2, MessageSquareText, Minimize2, SearchX, Send, Trash2 } from "lucide-react";
 import { ExampleQuestionsMenu } from "@/components/example-questions-menu";
+import { useSettings } from "@/components/use-settings";
 import { VoiceButton, VoiceStatus, useVoiceInput } from "@/components/voice-input";
 import { orderPassages, stripCitations, typedLength } from "@/lib/answer-format";
 
@@ -68,6 +69,14 @@ export function SearchChat({ fullscreen = false, onFullscreenChange }: { fullscr
   const active = turns.length > 0;
   const loading = turns.at(-1)?.reply.status === "loading";
   const voice = useVoiceInput(draft, setDraft, MAX_QUESTION_LENGTH);
+  const { voiceInput } = useSettings();
+  const showVoice = voice.supported && voiceInput;
+  const stopVoice = voice.stop;
+
+  // Turning speech input off in Asetukset also ends a dictation that is still running.
+  useEffect(() => {
+    if (!voiceInput) stopVoice();
+  }, [voiceInput, stopVoice]);
 
   // Runs for a new question and when its reply arrives: the question goes to the top of the
   // message area with the reply below it. The page itself may still be scrolled to the input.
@@ -181,10 +190,10 @@ export function SearchChat({ fullscreen = false, onFullscreenChange }: { fullscr
           <ExampleQuestionsMenu questions={suggestions} onPick={ask} disabled={loading} />
           {/* 16px text on phones: iOS Safari zooms the page when a smaller input gets focus. */}
           <input id="question" value={draft} maxLength={MAX_QUESTION_LENGTH} onChange={e => setDraft(e.target.value)} placeholder="Kirjoita kysymyksesi..." className="min-w-0 flex-1 px-2 text-base outline-none placeholder:text-slate-400 sm:text-sm" />
-          {voice.supported && <VoiceButton listening={voice.listening} onToggle={voice.toggle} />}
+          {showVoice && <VoiceButton listening={voice.listening} onToggle={voice.toggle} />}
           <button disabled={!draft.trim() || loading} type="submit" aria-label="Lähetä kysymys" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"><Send size={17} aria-hidden="true" /></button>
         </div>
-        {voice.supported && <VoiceStatus listening={voice.listening} message={voice.message} />}
+        {showVoice && <VoiceStatus listening={voice.listening} message={voice.message} />}
         <p className="mt-2 text-xs text-slate-500">Kysymys ja löydetyt kohdat lähetetään Google Gemini -palveluun hakua ja vastausta varten. Älä kirjoita henkilötietoja.</p>
       </div>
     </form>
@@ -256,10 +265,14 @@ function AnswerView({ response }: { response: ChatResponse }) {
  */
 function TypedText({ text }: { text: string }) {
   const chars = useMemo(() => Array.from(text), [text]);
-  const [count, setCount] = useState(() => prefersReducedMotion() ? chars.length : 0);
+  const { typingAnimation } = useSettings();
+  // Without the animation (Asetukset or the reduced-motion setting), the whole answer shows at once.
+  const [instant] = useState(() => !typingAnimation || prefersReducedMotion());
+  const [typed, setCount] = useState(0);
+  const count = instant ? chars.length : typed;
 
   useEffect(() => {
-    if (prefersReducedMotion()) return;
+    if (instant) return;
     let frame = 0;
     const start = performance.now();
     const tick = (now: number) => {
@@ -269,7 +282,7 @@ function TypedText({ text }: { text: string }) {
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [chars]);
+  }, [chars, instant]);
 
   return <>
     <span className="sr-only select-none">{text}</span>
@@ -282,7 +295,9 @@ function TypedText({ text }: { text: string }) {
 }
 
 function SourcesToggle({ showLabel, hideLabel, children }: { showLabel: string; hideLabel: string; children: ReactNode }) {
-  const [open, setOpen] = useState(false);
+  // "Näytä lähteet heti" in Asetukset opens new answers' sources; the button still closes them.
+  const { sourcesOpen } = useSettings();
+  const [open, setOpen] = useState(sourcesOpen);
   const panel = useId();
   return <div>
     <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls={panel} className="-ml-3 inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium text-blue-700 transition hover:bg-blue-50">

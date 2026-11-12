@@ -43,7 +43,9 @@ test("the chat dictates in Finnish, discloses the browser service and stops when
   assert.match(voice, /role="status"/);
   assert.match(voice, /Chromessa Google/);
   const chat = readFileSync(new URL("../src/components/search-chat.tsx", import.meta.url), "utf8");
-  assert.match(chat, /\{voice\.supported && <VoiceButton/);
+  // Shown only where recognition works and the user hasn't turned speech input off in Asetukset.
+  assert.match(chat, /const showVoice = voice\.supported && voiceInput/);
+  assert.match(chat, /\{showVoice && <VoiceButton/);
   assert.match(chat, /if \(!question \|\| loading\) return;\s*voice\.stop\(\);/);
   assert.match(chat, /function clear\(\) \{\s*voice\.stop\(\);/);
 });

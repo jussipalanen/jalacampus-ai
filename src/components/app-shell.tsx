@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BookOpen, ChevronRight, FileText, GraduationCap, Menu, MessageCircle, Search, Settings2, ShieldCheck, X } from "lucide-react";
+import { BookOpen, ChevronRight, FileText, GraduationCap, Menu, MessageCircle, Settings2, ShieldCheck, X } from "lucide-react";
 import { CourseCatalog, type CourseResults } from "@/components/course-catalog";
 import { DocumentLibrary } from "@/components/document-library";
 import { SearchChat } from "@/components/search-chat";
+import { SettingsView } from "@/components/settings-view";
+import { useSettings } from "@/components/use-settings";
 
 type View = "Keskustelu" | "Dokumentit" | "Kurssit" | "Asetukset";
 
@@ -23,6 +25,7 @@ export function AppShell({ initialCourses }: { initialCourses: CourseResults }) 
   const [mobileMenu, setMobileMenu] = useState(false);
   const [chatFullscreen, setChatFullscreen] = useState(false);
   const switched = useRef(false);
+  const { textSize } = useSettings();
   // Only Keskustelu has a full-screen mode, and only its own button turns it on.
   const fullscreen = chatFullscreen && view === "Keskustelu";
 
@@ -34,6 +37,11 @@ export function AppShell({ initialCourses }: { initialCourses: CourseResults }) 
     const heading = menu.find(item => item.label === view)?.heading;
     document.getElementById(heading ?? "")?.focus();
   }, [view]);
+
+  // Tailwind sizes are in rem, so scaling the root font size scales the whole UI (see globals.css).
+  useEffect(() => {
+    document.documentElement.dataset.textSize = textSize;
+  }, [textSize]);
 
   function open(next: View) {
     switched.current = true;
@@ -69,14 +77,7 @@ export function AppShell({ initialCourses }: { initialCourses: CourseResults }) 
           <div hidden={view !== "Keskustelu"}><SearchChat fullscreen={fullscreen} onFullscreenChange={setChatFullscreen} /></div>
           <div hidden={view !== "Dokumentit"}><DocumentLibrary /></div>
           <div hidden={view !== "Kurssit"}><CourseCatalog initial={initialCourses} /></div>
-          <div hidden={view !== "Asetukset"}>
-            <section aria-labelledby="settings-heading" className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
-              <span className="mb-4 inline-flex rounded-xl bg-blue-50 p-3 text-blue-600"><Settings2 aria-hidden="true" /></span>
-              <h1 id="settings-heading" tabIndex={-1} className="text-2xl font-semibold">Asetukset</h1>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">Tämä osio kuuluu projektin seuraaviin kehitysvaiheisiin. Toteutus tehdään omassa feature-haarassa ja tarkistetaan pull requestissa.</p>
-              <p className="mt-6 inline-flex items-center gap-2 rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-600"><Search size={16} aria-hidden="true" /> Tulossa ROADMAP.md:n mukaisesti</p>
-            </section>
-          </div>
+          <div hidden={view !== "Asetukset"}><SettingsView /></div>
           {!fullscreen && <footer className="mt-5 text-center text-xs text-slate-500">JalaCampus AI · Demo · Jussi Alanen</footer>}
         </main>
       </div>
