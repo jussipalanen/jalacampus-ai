@@ -21,7 +21,7 @@
 JalaCampus AI is a university-oriented demo that aims to make study guides, course information and campus instructions easier to find. The final concept combines a **Finnish-language chat interface**, **retrieval-augmented generation (RAG)**, **PostgreSQL + pgvector**, and an exchangeable LLM provider.
 
 > [!IMPORTANT]
-> **Current status:** This repository includes a responsive UI and a session-only PDF/TXT document preview. PostgreSQL ingestion, Gemini chunk embeddings and semantic search work, and the **Keskustelu** view answers questions from the synthetic sample documents, both locally and on the [live demo](https://jalacampus-ai.vercel.app). Answers come from [jussi-aibot](https://github.com/jussipalanen/jussi-aibot) on Cloud Run, and every citation is checked against the passages actually retrieved. The interface never fabricates answers or citations: when the documents don't contain the answer, it says so. The **Kurssit** view searches a synthetic course catalog through a small REST API, without any AI.
+> **Current status:** This repository includes a responsive UI and a session-only PDF/TXT document preview. PostgreSQL ingestion, Gemini chunk embeddings and semantic search work, and the **Keskustelu** view answers questions from the synthetic sample documents, both locally and on the [live demo](https://jalacampus-demo.jussialanen.com). Answers come from [jussi-aibot](https://github.com/jussipalanen/jussi-aibot) on Cloud Run, and every citation is checked against the passages actually retrieved. The interface never fabricates answers or citations: when the documents don't contain the answer, it says so. The **Kurssit** view searches a synthetic course catalog through a small REST API, without any AI.
 
 ### 🧭 Demo features
 
@@ -260,7 +260,7 @@ axe reports no violations in any view (Keskustelu before and after a question, D
 - `/robots.txt` and `/sitemap.xml`. Production may be indexed except the POST-only API routes; Vercel preview deployments send `noindex` and disallow everything, so they never compete with production.
 - schema.org JSON-LD (`WebSite` and `WebApplication`) in the page head.
 - [`/llms.txt`](public/llms.txt): a plain-language summary for AI assistants and answer engines. It says that the institution and its data are fictional, explains how answers are grounded and lists the public course API.
-- The canonical origin comes from `NEXT_PUBLIC_SITE_URL`, then Vercel's production URL, then `https://jalacampus-ai.vercel.app` (`src/lib/site.ts`).
+- The canonical origin comes from `NEXT_PUBLIC_SITE_URL`, then Vercel's production URL, then `https://jalacampus-demo.jussialanen.com` (`src/lib/site.ts`).
 - All views share one URL, because they are switched in place; only the front page is in the sitemap.
 
 </details>
@@ -268,7 +268,7 @@ axe reports no violations in any view (Keskustelu before and after a question, D
 <details>
 <summary><h2>☁️ Vercel deployment</h2></summary>
 
-Production: **https://jalacampus-ai.vercel.app**
+Production: **https://jalacampus-demo.jussialanen.com** (`jalacampus-ai.vercel.app` redirects there)
 
 Import `jussipalanen/jalacampus-ai` into Vercel as a **Next.js** project, with the repository root as the Root Directory, `main` as the Production Branch, Node.js **22.x**, and the default Next.js build and output settings. Vercel deploys every pull request as a Preview and every merge to `main` to Production. `vercel.json` pins the functions to `lhr1` (London), next to the Neon database (`aws-eu-west-2`) and close to jussi-aibot on Cloud Run (`europe-north1`); Vercel's default `iad1` (US East) would send every database query and answer call across the Atlantic. The local `.vercel/` project link is ignored by Git.
 
