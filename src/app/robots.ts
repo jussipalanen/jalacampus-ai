@@ -24,7 +24,7 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       { userAgent: AI_CRAWLERS, disallow: "/" },
-      { userAgent: "*", allow: "/", disallow: ["/api/chat", "/api/search", "/api/documents/"] },
+      { userAgent: "*", allow: "/", disallow: ["/api/grounded-answer", "/api/search", "/api/documents/"] },
     ],
   };
 }

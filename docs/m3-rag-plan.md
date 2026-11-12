@@ -13,7 +13,7 @@ JalaCampus keeps retrieval and calls **`POST /v1/grounded-answer`** in [jussi-ai
 ## Flow
 
 ```text
-Browser ── POST /api/chat { question } ──► JalaCampus (Next.js, Node runtime)
+Browser ── POST /api/grounded-answer { question } ──► JalaCampus (Next.js, Node runtime)
                                             1. validate + rate limit
                                             2. searchChunks(question, limit 8)
                                             3. keep passages with score ≥ SIMILARITY_FLOOR
@@ -36,7 +36,9 @@ Browser ── POST /api/chat { question } ──► JalaCampus (Next.js, Node r
   - Any unknown ID makes the whole response untrusted. JalaCampus then shows `no_evidence` and logs a warning; it does not silently drop the ID, because an unknown ID points to a bug or a compromised response.
   - `answered` with zero citations also becomes `no_evidence`.
 
-### `POST /api/chat`
+### `POST /api/grounded-answer`
+
+(Named `POST /api/chat` when this plan was written; renamed in #71 because it keeps no conversation history.)
 
 - **Body:** `{ "question": string }`, 1–500 characters, at most 4 KB. Validated with the same rules as `/api/search`.
 - **Off unless configured:** returns 503 with a Finnish notice unless `DATABASE_URL`, `GEMINI_API_KEY`, `AIBOT_URL` and `AIBOT_API_KEY` are all set. The deployed demo stays off until it has a database.
@@ -83,7 +85,7 @@ Browser ── POST /api/chat { question } ──► JalaCampus (Next.js, Node r
 ## Tests (CI, no network)
 
 - **Client:** the request format, a timeout, 5xx, a malformed response, an unknown citation ID → `no_evidence`, and `answered` without citations → `no_evidence`.
-- **`/api/chat` handler:**
+- **`/api/grounded-answer` handler:**
   - the disabled state, validation and rate limit;
   - nothing above the floor → no jussi-aibot call;
   - the `unavailable` fallback keeps the passages.
@@ -109,7 +111,7 @@ The results and the chosen floor go into the README's known limitations (M5).
 |---|---|---|---|
 | 1 | jussi-aibot | Endpoint, validation, `grounded_answer` permission, `no_evidence` path | — |
 | 2 | jussi-aibot | Generation, citation mapping, prompt-injection tests | 1 |
-| 3 | jalacampus-ai | `grounded-answer.ts` client + `/api/chat` with mocked jussi-aibot | — (contract only) |
+| 3 | jalacampus-ai | `grounded-answer.ts` client + `/api/grounded-answer` with mocked jussi-aibot | — (contract only) |
 | 4 | jalacampus-ai | Keskustelu answer UI with citations | 3; live check needs 2 |
 | 5 | jalacampus-ai | Evaluation set, `npm run eval`, similarity floor | 2, 4 |
 | 6 | jussi-aibot | Docs, Postman, Cloud Run client entry | 2 |
@@ -119,5 +121,5 @@ PR 3 can start immediately, because it tests against a mock that follows the con
 ## Out of scope for M3
 
 - Conversation history and follow-up questions: each question stands alone.
-- A production database and a public deployment of `/api/chat`, which needs a shared rate limit.
+- A production database and a public deployment of `/api/grounded-answer`, which needs a shared rate limit.
 - PDF ingestion (#24) and an admin upload flow.

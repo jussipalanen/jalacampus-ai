@@ -114,7 +114,9 @@ npm run db:search -- "Unohdin salasanani, mitä teen?"
 
 ### Grounded answers API
 
-`POST /api/chat` with `{"question": "..."}` turns search results into a short Finnish answer through [jussi-aibot](https://github.com/jussipalanen/jussi-aibot)'s `POST /v1/grounded-answer` (design: [`docs/m3-rag-plan.md`](docs/m3-rag-plan.md)). The Keskustelu view uses it (see below).
+`POST /api/grounded-answer` with `{"question": "..."}` turns search results into a short Finnish answer through [jussi-aibot](https://github.com/jussipalanen/jussi-aibot)'s `POST /v1/grounded-answer` (design: [`docs/m3-rag-plan.md`](docs/m3-rag-plan.md)). The Keskustelu view uses it (see below).
+
+The two endpoints share a name but not a contract: JalaCampus's `/api/grounded-answer` takes only the question and does the retrieval itself, while jussi-aibot's `/v1/grounded-answer` takes the question plus the passages to answer from. Each question is answered on its own; no conversation history is sent. (The route was called `/api/chat` until 0.4.x.)
 
 1. **Search:** up to 8 passages are retrieved, and those below `SIMILARITY_FLOOR` (default 0.64, chosen with the evaluation below) are dropped. If none remain, the reply is `no_evidence` and jussi-aibot is not called.
 2. **Answer:** the question and passages (chunk ID, source name, text) go to jussi-aibot with a server-side key and a 35 s timeout (jussi-aibot gives up on a slow model after about 30 s).
@@ -125,7 +127,7 @@ The route is disabled with a Finnish notice unless `DATABASE_URL`, `GEMINI_API_K
 
 ### Evaluation
 
-`npm run eval` runs the synthetic Finnish cases in [`data/eval/questions.json`](data/eval/questions.json) through the same `/api/chat` flow against real Gemini and jussi-aibot. Before running, it resets the `_test` database and loads `data/samples/` plus an eval-only prompt-injection fixture. It prints pass/fail per case and suggests a similarity floor. It costs about two Gemini calls per case, so it doesn't run in CI. `npm run eval -- <case-id> …` re-runs single cases.
+`npm run eval` runs the synthetic Finnish cases in [`data/eval/questions.json`](data/eval/questions.json) through the same `/api/grounded-answer` flow against real Gemini and jussi-aibot. Before running, it resets the `_test` database and loads `data/samples/` plus an eval-only prompt-injection fixture. It prints pass/fail per case and suggests a similarity floor. It costs about two Gemini calls per case, so it doesn't run in CI. `npm run eval -- <case-id> …` re-runs single cases.
 
 Results on 2026-11-05 (`gemini-embedding-2`, `gemini-3.5-flash-lite`, floor 0.60):
 
@@ -285,7 +287,7 @@ Variables apply to the next deployment. To load or reset the production database
 2. Ingest with the pooled URL: `DATABASE_URL=<pooled url> npm run db:ingest -- data/samples`.
 
 **Abuse protection:**
-- A Vercel Firewall custom rule, "Rate limit AI endpoints", covers `POST /api/chat` and `/api/search` at 20 requests per minute per IP. It starts in **log** mode; switch it to `rate_limit` after reviewing traffic.
+- A Vercel Firewall custom rule, "Rate limit AI endpoints", covers `POST /api/grounded-answer` and `/api/search` at 20 requests per minute per IP. It starts in **log** mode; switch it to `rate_limit` after reviewing traffic.
 - The jussi-aibot client caps answers at 100 a day.
 - The Gemini key has no billing, so abuse can exhaust the free quota but cannot create costs.
 

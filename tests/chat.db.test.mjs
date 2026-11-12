@@ -40,7 +40,7 @@ describe("PostgreSQL chat flow with a mocked jussi-aibot", { skip: !url && "TEST
   });
 
   const chat = answer => handleChatRequest(
-    new Request("http://localhost/api/chat", { method: "POST", body: JSON.stringify({ question: "Milloin kirjasto on avoinna?" }) }),
+    new Request("http://localhost/api/grounded-answer", { method: "POST", body: JSON.stringify({ question: "Milloin kirjasto on avoinna?" }) }),
     {
       enabled: true,
       allow: () => true,

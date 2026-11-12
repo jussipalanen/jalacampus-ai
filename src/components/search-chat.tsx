@@ -118,7 +118,7 @@ export function SearchChat({ fullscreen = false, onFullscreenChange }: { fullscr
     if (window.matchMedia("(pointer: coarse)").matches && document.activeElement instanceof HTMLElement) document.activeElement.blur();
     setTurns(current => [...current, { id, question, reply: { status: "loading" } }]);
     try {
-      const chat = await postJson("/api/chat", { question }, controller.signal);
+      const chat = await postJson("/api/grounded-answer", { question }, controller.signal);
       if (chat.response.status === 503 && chat.body.code === "disabled") {
         // AI answers aren't configured here (e.g. no jussi-aibot key): show search results instead.
         const search = await postJson("/api/search", { query: question }, controller.signal);
