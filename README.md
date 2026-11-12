@@ -10,7 +10,7 @@
 ![UI language](https://img.shields.io/badge/UI-Suomi-2563EB)
 ![Project stage](https://img.shields.io/badge/Stage-Live_RAG_demo-F59E0B)
 
-*Designed and maintained by **Jussi Alanen** · [juzapala@gmail.com](mailto:juzapala@gmail.com)*
+*Designed and maintained by **Jussi Alanen** · [GitHub: jussipalanen](https://github.com/jussipalanen)*
 
 </div>
 
@@ -347,4 +347,4 @@ See [ROADMAP.md](ROADMAP.md) for milestones, proposed issue boundaries and accep
 
 ## 👤 Author
 
-**Jussi Alanen** · [juzapala@gmail.com](mailto:juzapala@gmail.com)
+**Jussi Alanen** · [GitHub: jussipalanen](https://github.com/jussipalanen)
