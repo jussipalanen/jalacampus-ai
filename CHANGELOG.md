@@ -4,6 +4,11 @@ Changes are recorded by release version. Update the Unreleased section in featur
 
 ## [Unreleased]
 
+### Changed
+
+- Vercel functions run in London (`lhr1`) instead of US East, next to the Neon database and close to jussi-aibot in Finland.
+- The jussi-aibot answer timeout is 35 s instead of 60 s, matching jussi-aibot's own limit of about 30 s per answer.
+
 ## [0.4.0] - 2026-11-11
 
 A course catalog, a fuller chat, and an accessibility and search-visibility pass.

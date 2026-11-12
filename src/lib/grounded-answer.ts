@@ -1,7 +1,8 @@
 /** Server-side only: client for jussi-aibot `POST /v1/grounded-answer`. See docs/m3-rag-plan.md. */
 
 export const NO_EVIDENCE_FI = "En löytänyt tähän vastausta dokumenteista.";
-export const DEFAULT_ANSWER_TIMEOUT_MS = 60_000; // Cloud Run scales to zero; the first call can be slow
+// jussi-aibot limits each Gemini attempt to 15 s and retries once on a fallback model (about 30 s worst case).
+export const DEFAULT_ANSWER_TIMEOUT_MS = 35_000;
 const MAX_ANSWER_CHARS = 4_000;
 
 export type AnswerPassage = { id: string; source: string; text: string };
