@@ -12,8 +12,8 @@ JalaCampus AI is a portfolio project, not a real university service. It has thre
 
 Public, read-only JSON. Results come only from the synthetic catalog, and every response names its source.
 
-- [Search courses](https://jalacampus-ai.vercel.app/api/courses?q=ohjelmointi): `GET /api/courses?q=<text>&period=<1-4>`; without parameters it lists all courses.
-- [One course](https://jalacampus-ai.vercel.app/api/courses/TIE210): `GET /api/courses/<code>`, e.g. `TIE210`.
+- [Search courses](https://jalacampus-demo.jussialanen.com/api/courses?q=ohjelmointi): `GET /api/courses?q=<text>&period=<1-4>`; without parameters it lists all courses.
+- [One course](https://jalacampus-demo.jussialanen.com/api/courses/TIE210): `GET /api/courses/<code>`, e.g. `TIE210`.
 
 ## How answers are grounded
 

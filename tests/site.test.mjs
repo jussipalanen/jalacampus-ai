@@ -25,7 +25,7 @@ function withEnv(values, run) {
 test("siteUrl prefers the configured URL, then Vercel's production URL, then the known production site", () => {
   assert.equal(siteUrl({ NEXT_PUBLIC_SITE_URL: "https://example.fi/" }), "https://example.fi");
   assert.equal(siteUrl({ VERCEL_PROJECT_PRODUCTION_URL: "jalacampus.example.app" }), "https://jalacampus.example.app");
-  assert.equal(siteUrl({}), "https://jalacampus-ai.vercel.app");
+  assert.equal(siteUrl({}), "https://jalacampus-demo.jussialanen.com");
 });
 
 test("only production and non-Vercel builds may be indexed", () => {
@@ -39,7 +39,7 @@ test("robots.txt allows production except the POST-only APIs and blocks previews
   const production = withEnv({ VERCEL_ENV: "production", NEXT_PUBLIC_SITE_URL: undefined, VERCEL_PROJECT_PRODUCTION_URL: undefined }, robots);
   assert.equal(production.rules.allow, "/");
   assert.deepEqual(production.rules.disallow, ["/api/chat", "/api/search", "/api/documents/"]);
-  assert.equal(production.sitemap, "https://jalacampus-ai.vercel.app/sitemap.xml");
+  assert.equal(production.sitemap, "https://jalacampus-demo.jussialanen.com/sitemap.xml");
   const preview = withEnv({ VERCEL_ENV: "preview" }, robots);
   assert.deepEqual(preview.rules, { userAgent: "*", disallow: "/" });
   assert.equal(preview.sitemap, undefined);
@@ -47,7 +47,7 @@ test("robots.txt allows production except the POST-only APIs and blocks previews
 
 test("sitemap lists the front page on the canonical origin", () => {
   const entries = withEnv({ NEXT_PUBLIC_SITE_URL: undefined, VERCEL_PROJECT_PRODUCTION_URL: undefined }, sitemap);
-  assert.deepEqual(entries.map(entry => entry.url), ["https://jalacampus-ai.vercel.app/"]);
+  assert.deepEqual(entries.map(entry => entry.url), ["https://jalacampus-demo.jussialanen.com/"]);
 });
 
 test("the web app manifest is Finnish and uses the brand colours", () => {

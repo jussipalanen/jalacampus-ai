@@ -1,6 +1,6 @@
 /** Public facts about the site, shared by metadata, robots, sitemap, manifest and structured data. */
 
-const PRODUCTION_URL = "https://jalacampus-ai.vercel.app";
+const PRODUCTION_URL = "https://jalacampus-demo.jussialanen.com";
 
 /**
  * The canonical origin. `NEXT_PUBLIC_SITE_URL` overrides it (e.g. a custom domain); Vercel production

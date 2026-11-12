@@ -55,7 +55,7 @@ Agreed in [jussi-aibot PR #34](https://github.com/jussipalanen/jussi-aibot/pull/
 - [x] Keskustelu answer with its cited source passages behind a "Näytä lähteet" button; honest `no_evidence` and "unavailable" states
 - [x] Finnish evaluation set (`npm run eval`): answerable, out-of-scope, on-topic-but-missing (e.g. "Mistä kirjasto löytyy?" scored 0.72) and prompt-injection cases; similarity floor set to 0.64 from the results (22/22 after re-running one Gemini-overload failure)
 
-**Acceptance:** The assistant references actual retrieved source documents, refuses to invent citations, and handles API failures safely. ✅ Met locally and in production (https://jalacampus-ai.vercel.app: Neon PostgreSQL, jussi-aibot `jalacampus-prod` client, Vercel Firewall rule in log mode).
+**Acceptance:** The assistant references actual retrieved source documents, refuses to invent citations, and handles API failures safely. ✅ Met locally and in production (https://jalacampus-demo.jussialanen.com: Neon PostgreSQL, jussi-aibot `jalacampus-prod` client, Vercel Firewall rule in log mode).
 
 ## ✅ M4 — Course service (`feat/course-catalog`, issue #40)
 - [x] Minimal REST API serving synthetic course data (`GET /api/courses?q=&period=`, `GET /api/courses/{code}`; 18 courses in `data/courses/courses.json`, validated on load)
