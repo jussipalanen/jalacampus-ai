@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "description": "A Finnish-language AI knowledge assistant demo for higher education.",
-  "author": "Jussi Alanen <juzapala@gmail.com>",
+  "author": "Jussi Alanen (https://github.com/jussipalanen)",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -1,6 +1,6 @@
 # Engineering agent instructions — JalaCampus AI
 
-**Project owner:** Jussi Alanen <juzapala@gmail.com>
+**Project owner:** Jussi Alanen ([GitHub: jussipalanen](https://github.com/jussipalanen))
 
 ## Product and scope
 - Build a professional Finnish-language knowledge assistant demo for higher education.
