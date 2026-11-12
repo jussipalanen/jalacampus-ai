@@ -30,7 +30,7 @@ Browser ── POST /api/chat { question } ──► JalaCampus (Next.js, Node r
 
 - `requestGroundedAnswer(question, passages, { fetch, timeoutMs })`. `fetch` is injectable for tests.
 - Sends passages as `{ id: chunkId, source: sourceName, text }`. The chunk text is already at most 1,000 characters, inside jussi-aibot's 2,000 limit.
-- A 60 s timeout, because Cloud Run scales to zero and the first call can be slow. There are no retries; jussi-aibot retries malformed model output itself.
+- A 35 s timeout. jussi-aibot keeps an instance warm, limits each Gemini attempt to 15 s and retries once on a fallback model, so it answers or gives up within about 30 s. (Originally 60 s, for Cloud Run cold starts.) There are no retries; jussi-aibot retries malformed model output itself.
 - Checks the response shape: `status` is `answered` or `no_evidence`, `answer` is a non-empty string, and `citations` is a string array.
 - **Second citation check:** every citation must be one of the IDs sent.
   - Any unknown ID makes the whole response untrusted. JalaCampus then shows `no_evidence` and logs a warning; it does not silently drop the ID, because an unknown ID points to a bug or a compromised response.

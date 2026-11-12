@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { AnswerServiceError, checkAnswer, createGroundedAnswerClient, NO_EVIDENCE_FI } from "../src/lib/grounded-answer.ts";
+import { AnswerServiceError, checkAnswer, createGroundedAnswerClient, DEFAULT_ANSWER_TIMEOUT_MS, NO_EVIDENCE_FI } from "../src/lib/grounded-answer.ts";
 
 const PASSAGES = [
   { id: "chunk-library", source: "kirjasto.txt", text: "Kirjasto on avoinna arkisin kello 8–20." },
@@ -77,4 +77,10 @@ test("second citation check: any unknown id or out-of-range marker makes the ans
 test("an answer without citations or text is never shown as answered", () => {
   assert.deepEqual(checkAnswer({ ...ANSWERED, citations: [] }, PASSAGES), NO_EVIDENCE);
   assert.deepEqual(checkAnswer({ ...ANSWERED, answer: "   " }, PASSAGES), NO_EVIDENCE);
+});
+
+test("the default timeout outlasts jussi-aibot's worst case but stays short", () => {
+  // jussi-aibot: 15 s per Gemini attempt, one retry on the fallback model.
+  assert.ok(DEFAULT_ANSWER_TIMEOUT_MS > 30_000);
+  assert.ok(DEFAULT_ANSWER_TIMEOUT_MS <= 40_000);
 });

@@ -117,7 +117,7 @@ npm run db:search -- "Unohdin salasanani, mitä teen?"
 `POST /api/chat` with `{"question": "..."}` turns search results into a short Finnish answer through [jussi-aibot](https://github.com/jussipalanen/jussi-aibot)'s `POST /v1/grounded-answer` (design: [`docs/m3-rag-plan.md`](docs/m3-rag-plan.md)). The Keskustelu view uses it (see below).
 
 1. **Search:** up to 8 passages are retrieved, and those below `SIMILARITY_FLOOR` (default 0.64, chosen with the evaluation below) are dropped. If none remain, the reply is `no_evidence` and jussi-aibot is not called.
-2. **Answer:** the question and passages (chunk ID, source name, text) go to jussi-aibot with a server-side key and a 60 s timeout.
+2. **Answer:** the question and passages (chunk ID, source name, text) go to jussi-aibot with a server-side key and a 35 s timeout (jussi-aibot gives up on a slow model after about 30 s).
 3. **Second citation check:** every returned citation must be a chunk ID that was sent, and every `[n]` marker must point into the citation list. Otherwise the whole answer is discarded as `no_evidence` and a warning is logged.
 4. **Reply:** `{status, answer, citations, passages}`, where `status` is `answered`, `no_evidence`, or `unavailable` (jussi-aibot down or misbehaving; the found passages are still returned with a Finnish notice).
 
@@ -270,7 +270,7 @@ axe reports no violations in any view (Keskustelu before and after a question, D
 
 Production: **https://jalacampus-ai.vercel.app**
 
-Import `jussipalanen/jalacampus-ai` into Vercel as a **Next.js** project, with the repository root as the Root Directory, `main` as the Production Branch, Node.js **22.x**, and the default Next.js build and output settings. Vercel deploys every pull request as a Preview and every merge to `main` to Production. No `vercel.json` is needed, and the local `.vercel/` project link is ignored by Git.
+Import `jussipalanen/jalacampus-ai` into Vercel as a **Next.js** project, with the repository root as the Root Directory, `main` as the Production Branch, Node.js **22.x**, and the default Next.js build and output settings. Vercel deploys every pull request as a Preview and every merge to `main` to Production. `vercel.json` pins the functions to `lhr1` (London), next to the Neon database (`aws-eu-west-2`) and close to jussi-aibot on Cloud Run (`europe-north1`); Vercel's default `iad1` (US East) would send every database query and answer call across the Atlantic. The local `.vercel/` project link is ignored by Git.
 
 **Production environment variables** (Production only, marked sensitive; Previews get none and fall back to the search-disabled notice):
 
