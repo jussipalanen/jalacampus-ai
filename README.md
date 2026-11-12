@@ -36,11 +36,15 @@ JalaCampus AI is a university-oriented demo that aims to make study guides, cour
 | 🛡️ | Grounded answers and source citations | ✅ Citations checked twice; honest "no answer" |
 | ⚙️ | Configurable model provider | 🗓️ Planned |
 
-## 🎨 Visual language
+<details>
+<summary><h2>🎨 Visual language</h2></summary>
 
 A professional **light-only** interface: clean white surfaces, `#F8FAFC` background, `#2563EB` primary blue, `#0F172A` text and `#E2E8F0` borders. Built with **Tailwind CSS v4**, responsive layouts and Lucide icons. **All user-facing copy is in Finnish**; source code and engineering documentation are in English.
 
-## 🧱 Architecture (target)
+</details>
+
+<details>
+<summary><h2>🧱 Architecture (target)</h2></summary>
 
 ```mermaid
 flowchart TD
@@ -55,7 +59,10 @@ flowchart TD
 
 The flow above describes the **target architecture**, not the current state. For the demo, use only synthetic or appropriately licensed public sample documents. Do not include real student records or secrets.
 
-## 🚀 Quick start
+</details>
+
+<details>
+<summary><h2>🚀 Quick start</h2></summary>
 
 Requires Node.js 20.9+ (Node.js 22 LTS recommended).
 
@@ -77,11 +84,17 @@ Database integration tests (`tests/*.db.test.mjs`) are skipped unless `TEST_DATA
 
 `.env.example` documents local database and Gemini embedding settings; no API key or database is required to run the UI scaffold.
 
-## 📄 Document preview
+</details>
+
+<details>
+<summary><h2>📄 Document preview</h2></summary>
 
 The **Dokumentit** tab accepts synthetic or licensed public PDF and UTF-8 TXT samples up to 2 MB. A Node.js route extracts up to 10 PDF pages and returns at most 20,000 characters for preview. The document list stays in the current page session only; files are not persisted, indexed, or sent to an AI provider. The demo has no admin authentication, so do not upload student records or other private material.
 
-## 🗃️ Vector storage foundation
+</details>
+
+<details>
+<summary><h2>🗃️ Vector storage foundation</h2></summary>
 
 M2 adds a PostgreSQL/pgvector schema in `db/migrations/`, a deterministic Unicode-safe text chunker, and a server-side ingestion module (`src/lib/ingestion.ts`). Ingestion stores a document and its chunks in one transaction. The document ID is the SHA-256 of the normalized text, so ingesting the same content again changes nothing. Ingestion is command-line only; search and answers are available in the UI (see below). 
 Chunk embeddings use Google's **`gemini-embedding-2`** model on the free Gemini API tier, at 768 dimensions with an HNSW cosine index (`db/migrations/002_chunk_embeddings.sql`). The adapter in `src/lib/embeddings.ts` sits behind a small `Embedder` interface so another provider can replace it. `npm run db:embed` embeds every chunk that has no embedding, or one from a different model, and can be re-run safely. Each vector records its model; changing the model or dimension needs a new migration and re-embedding.
@@ -178,7 +191,10 @@ First run:
 
 The source is bind-mounted, so edits reload in the browser. Dependencies and `.next` live in named volumes: the container installs from `package-lock.json` with `npm ci`, and only again when the lockfile changes. It runs as the non-root `node` user (uid 1000), so files it writes into the repo belong to you on most Linux and WSL setups. `docker compose down -v` also deletes the database and dependency volumes. These services are for development only; production runs on Vercel with a Neon database (see below).
 
-## 📚 Course catalog
+</details>
+
+<details>
+<summary><h2>📚 Course catalog</h2></summary>
 
 The **Kurssit** view searches a synthetic catalog of 18 courses in [`data/courses/courses.json`](data/courses/courses.json) (format: [`data/courses/README.md`](data/courses/README.md)). Results come straight from the catalog; no language model is involved, so a course that isn't in the file is never shown. Every result names its source, *JalaCampus-korkeakoulun opinto-opas 2026–2027*, and the course code.
 
@@ -196,7 +212,10 @@ Errors are in Finnish: `q` is at most 200 characters, and `period` must be 1–4
 
 **Known limitations:** it is keyword search, not semantic search. Consonant gradation can hide a match (*kielen* doesn't match *kieli*), and colloquial words only work when they are listed as keywords (*matikka*). The catalog is bundled with the app; there is no database table or admin editing. **Keskustelu** doesn't answer course questions yet.
 
-## ♿ Accessibility, loading and search visibility
+</details>
+
+<details>
+<summary><h2>♿ Accessibility, loading and search visibility</h2></summary>
 
 Checked on 2026-11-11 against a local production build (`next start`) with Lighthouse 12 and axe-core 4.14 (WCAG 2.2 A/AA rules plus best practices), on desktop and an emulated iPhone 13:
 
@@ -225,7 +244,10 @@ axe reports no violations in any view (Keskustelu before and after a question, D
 - The canonical origin comes from `NEXT_PUBLIC_SITE_URL`, then Vercel's production URL, then `https://jalacampus-ai.vercel.app` (`src/lib/site.ts`).
 - All views share one URL, because they are switched in place; only the front page is in the sitemap.
 
-## ☁️ Vercel deployment
+</details>
+
+<details>
+<summary><h2>☁️ Vercel deployment</h2></summary>
 
 Production: **https://jalacampus-ai.vercel.app**
 
@@ -249,7 +271,10 @@ Variables apply to the next deployment. To load or reset the production database
 - The jussi-aibot client caps answers at 100 a day.
 - The Gemini key has no billing, so abuse can exhaust the free quota but cannot create costs.
 
-## 📦 GitHub releases
+</details>
+
+<details>
+<summary><h2>📦 GitHub releases</h2></summary>
 
 Release publication is controlled by a version tag on `main`. Update `package.json` and `CHANGELOG.md` in a reviewed PR, and merge it after the normal checks pass. Then create and push an annotated tag matching the package version, for example `v0.1.0`:
 
@@ -262,7 +287,10 @@ git push origin v0.1.0
 
 The Release workflow checks that the tagged commit is on `main`, the tag matches `package.json`, the changelog section exists, and `npm run check` passes. It then creates the GitHub Release from that changelog section. Do not tag a feature branch or reuse an existing version.
 
-## 🗂️ Project structure
+</details>
+
+<details>
+<summary><h2>🗂️ Project structure</h2></summary>
 
 ```text
 src/app/             Next.js app router and Finnish UI; metadata, icons, robots, sitemap and manifest
@@ -278,7 +306,10 @@ docs/                Design docs (M3 grounded-answer plan)
 AGENTS.md            Shared engineering instructions
 ```
 
-## 🌿 Development workflow
+</details>
+
+<details>
+<summary><h2>🌿 Development workflow</h2></summary>
 
 1. Create an issue for one small feature (see `ROADMAP.md`).
 2. Create a `feat/<scope>` (or `fix/<scope>`) branch from `main`.
@@ -288,6 +319,8 @@ AGENTS.md            Shared engineering instructions
 6. Prefer squash merges to keep the history readable.
 
 GitHub Actions runs basic checks on every PR and on pushes to `main`. To **enforce** review before merge, configure the repository's branch protection/ruleset in GitHub Settings (require PR, at least one approval, and passing `verify` check). The files alone do **not** enforce approval.
+
+</details>
 
 ## 🗺️ Roadmap
 
