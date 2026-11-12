@@ -9,7 +9,7 @@
 - [x] Finnish-language, responsive, accessible-first light UI
 - [x] Lucide icons and explicit UI-demo state
 - [x] CI workflow (lint, typecheck, tests, build)
-- [x] README, ROADMAP, AGENTS, CLAUDE and PR template
+- [x] README, ROADMAP, AGENTS and PR template
 
 ## Architecture plan
 

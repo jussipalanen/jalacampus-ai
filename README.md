@@ -276,7 +276,6 @@ data/                Synthetic sample documents, evaluation set and course catal
 docker/web/          Dev-server image and start script
 docs/                Design docs (M3 grounded-answer plan)
 AGENTS.md            Shared engineering instructions
-CLAUDE.md            Claude Code entrypoint importing AGENTS.md
 ```
 
 ## 🌿 Development workflow
