@@ -1,10 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { SITE, allowIndexing, siteUrl, structuredData } from "../src/lib/site.ts";
+import { NO_INDEX, SITE, siteUrl, structuredData } from "../src/lib/site.ts";
 import manifest from "../src/app/manifest.ts";
-import robots from "../src/app/robots.ts";
-import sitemap from "../src/app/sitemap.ts";
+import robots, { AI_CRAWLERS } from "../src/app/robots.ts";
 
 const source = path => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
@@ -28,26 +27,26 @@ test("siteUrl prefers the configured URL, then Vercel's production URL, then the
   assert.equal(siteUrl({}), "https://jalacampus-demo.jussialanen.com");
 });
 
-test("only production and non-Vercel builds may be indexed", () => {
-  assert.equal(allowIndexing({}), true);
-  assert.equal(allowIndexing({ VERCEL_ENV: "production" }), true);
-  assert.equal(allowIndexing({ VERCEL_ENV: "preview" }), false);
-  assert.equal(allowIndexing({ VERCEL_ENV: "development" }), false);
+test("robots.txt blocks AI crawlers but lets search engines crawl to see noindex", () => {
+  for (const env of [{ VERCEL_ENV: "production" }, { VERCEL_ENV: "preview" }, { VERCEL_ENV: undefined }]) {
+    const [ai, everyone] = withEnv(env, robots).rules;
+    assert.deepEqual(ai, { userAgent: AI_CRAWLERS, disallow: "/" });
+    assert.equal(everyone.userAgent, "*");
+    assert.equal(everyone.allow, "/"); // a crawler blocked here would never see noindex
+    assert.deepEqual(everyone.disallow, ["/api/chat", "/api/search", "/api/documents/"]);
+  }
+  for (const bot of ["GPTBot", "ClaudeBot", "Google-Extended", "CCBot", "PerplexityBot"]) assert.ok(AI_CRAWLERS.includes(bot), bot);
+  assert.equal(robots().sitemap, undefined);
 });
 
-test("robots.txt allows production except the POST-only APIs and blocks previews", () => {
-  const production = withEnv({ VERCEL_ENV: "production", NEXT_PUBLIC_SITE_URL: undefined, VERCEL_PROJECT_PRODUCTION_URL: undefined }, robots);
-  assert.equal(production.rules.allow, "/");
-  assert.deepEqual(production.rules.disallow, ["/api/chat", "/api/search", "/api/documents/"]);
-  assert.equal(production.sitemap, "https://jalacampus-demo.jussialanen.com/sitemap.xml");
-  const preview = withEnv({ VERCEL_ENV: "preview" }, robots);
-  assert.deepEqual(preview.rules, { userAgent: "*", disallow: "/" });
-  assert.equal(preview.sitemap, undefined);
-});
-
-test("sitemap lists the front page on the canonical origin", () => {
-  const entries = withEnv({ NEXT_PUBLIC_SITE_URL: undefined, VERCEL_PROJECT_PRODUCTION_URL: undefined }, sitemap);
-  assert.deepEqual(entries.map(entry => entry.url), ["https://jalacampus-demo.jussialanen.com/"]);
+test("every response and the page metadata say noindex, and there is no sitemap", async () => {
+  assert.match(NO_INDEX, /noindex/);
+  assert.match(NO_INDEX, /nofollow/);
+  const { default: config } = await import("../next.config.ts");
+  const rules = await config.headers();
+  assert.deepEqual(rules, [{ source: "/:path*", headers: [{ key: "X-Robots-Tag", value: NO_INDEX }] }]);
+  assert.match(source("src/app/layout.tsx"), /robots: \{ index: false, follow: false/);
+  assert.throws(() => source("src/app/sitemap.ts"), { code: "ENOENT" });
 });
 
 test("the web app manifest is Finnish and uses the brand colours", () => {
@@ -68,17 +67,14 @@ test("structured data describes a free Finnish web application without contact d
   assert.equal(SITE.description.length <= 160, true, "description fits a search result snippet");
 });
 
-test("layout declares canonical, Open Graph and per-environment robots metadata", () => {
+test("layout declares canonical, Open Graph and noindex robots metadata", () => {
   const layout = source("src/app/layout.tsx");
-  for (const field of ["metadataBase", "alternates: { canonical", "openGraph", "twitter", "themeColor", "robots: indexable"]) {
+  for (const field of ["metadataBase", "alternates: { canonical", "openGraph", "twitter", "themeColor", "robots: { index: false"]) {
     assert.ok(layout.includes(field), field);
   }
   assert.match(layout, /<html lang="fi">/);
 });
 
-test("llms.txt states that the institution and its data are fictional", () => {
-  const text = source("public/llms.txt");
-  assert.match(text, /^# JalaCampus AI/);
-  assert.match(text, /fictional/);
-  assert.doesNotMatch(text, /github\.com\/jussipalanen\/jalacampus-ai/); // the repository is private
+test("no llms.txt is published, because AI crawlers are not invited", () => {
+  assert.throws(() => source("public/llms.txt"), { code: "ENOENT" });
 });

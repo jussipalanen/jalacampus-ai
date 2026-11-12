@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { SITE, allowIndexing, siteUrl } from "@/lib/site";
+import { SITE, siteUrl } from "@/lib/site";
 import "./globals.css";
-
-const indexable = allowIndexing();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -13,7 +11,8 @@ export const metadata: Metadata = {
   creator: SITE.author,
   keywords: ["korkeakoulu", "tietoavustaja", "opinto-opas", "kurssihaku", "RAG", "tekoäly", "Next.js"],
   alternates: { canonical: "/" },
-  robots: indexable ? { index: true, follow: true } : { index: false, follow: false },
+  // Kept out of search results; the X-Robots-Tag header in next.config.ts says the same for every response.
+  robots: { index: false, follow: false, noarchive: true, noimageindex: true },
   openGraph: {
     type: "website",
     url: "/",
