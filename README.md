@@ -34,6 +34,7 @@ JalaCampus AI is a university-oriented demo that aims to make study guides, cour
 | 🤖 | Grounded AI answers (RAG) | ✅ Live demo and local development (via jussi-aibot on Cloud Run) |
 | 📚 | Course catalog API and Finnish course search | ✅ Synthetic catalog, keyword search (no AI) |
 | 🛡️ | Grounded answers and source citations | ✅ Citations checked twice; honest "no answer" |
+| 🎛️ | Settings (Asetukset): answer display, voice input, text size | ✅ Stored in the browser only |
 | ⚙️ | Configurable model provider | 🗓️ Planned |
 
 <details>
@@ -211,6 +212,24 @@ Errors are in Finnish: `q` is at most 200 characters, and `period` must be 1–4
 - Each query word counts the weight of the best field it matches: code 10, name 5, keywords 4, unit, level and teaching language 2, description 1. Courses that match more query words come first, then those with a higher total.
 
 **Known limitations:** it is keyword search, not semantic search. Consonant gradation can hide a match (*kielen* doesn't match *kieli*), and colloquial words only work when they are listed as keywords (*matikka*). The catalog is bundled with the app; there is no database table or admin editing. **Keskustelu** doesn't answer course questions yet.
+
+</details>
+
+<details>
+<summary><h2>🎛️ Settings (Asetukset)</h2></summary>
+
+The **Asetukset** view holds a few UI preferences. They apply at once, are stored only in the browser's `localStorage` under `jalacampus:settings`, and are never sent to the server. Other open tabs follow changes. If storage is blocked (for example in some private windows), the settings still work until the page is reloaded.
+
+| Setting | Default | Effect |
+| --- | --- | --- |
+| *Kirjoitusanimaatio* | On | Answers appear letter by letter. The system reduced-motion setting always shows them at once |
+| *Näytä lähteet heti* | Off | New answers open their sources and other found passages without the *Näytä lähteet* button |
+| *Puhesyöte* | On | Shows the microphone button where the browser supports speech recognition. Turning it off also stops a dictation in progress |
+| *Tekstin koko* | Normaali | *Suuri* sets the root font size to 112.5 %, which scales the whole UI because Tailwind sizes are in rem |
+
+*Palauta oletukset* removes the stored entry. Stored values are validated on load (`parseSettings` in `src/lib/settings.ts`): unknown keys are dropped and an invalid value falls back to its default, so an old or edited entry can't break the page. Settings load after hydration, so a page with *Suuri* text renders at normal size for a moment on reload.
+
+The view also has a **Tietoa palvelusta** section that explains, in Finnish, what data the demo uses, which services receive the question (Google Gemini for embeddings and, through jussi-aibot, for answers), that course search uses no AI, that uploaded documents are only previewed, how speech input is processed, and that the conversation isn't saved.
 
 </details>
 

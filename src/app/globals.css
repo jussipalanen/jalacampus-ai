@@ -12,6 +12,9 @@
   --font-sans: Arial, Helvetica, sans-serif;
 }
 
+/* "Suuri" text size in Asetukset. Tailwind sizes are in rem, so the whole UI scales with the root font size. */
+html[data-text-size="large"] { font-size: 112.5%; }
+
 /* In the base layer so utilities such as outline-none can turn it off where a component draws its own focus ring. */
 @layer base {
   :focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }

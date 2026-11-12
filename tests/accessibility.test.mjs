@@ -12,13 +12,13 @@ test("app shell has a skip link, a labelled menu and focus moves to the new view
   assert.match(shell, /<nav id="main-menu" aria-label="Päävalikko"/);
   assert.match(shell, /document\.getElementById\(heading \?\? ""\)\?\.focus\(\)/);
   for (const id of ["chat-heading", "documents-heading", "courses-heading", "settings-heading"]) {
-    const files = ["src/components/search-chat.tsx", "src/components/document-library.tsx", "src/components/course-catalog.tsx", "src/components/app-shell.tsx"];
+    const files = ["src/components/search-chat.tsx", "src/components/document-library.tsx", "src/components/course-catalog.tsx", "src/components/settings-view.tsx"];
     assert.ok(files.some(file => new RegExp(`id="${id}"[^>]*tabIndex=\\{-1\\}`).test(source(file))), `${id} is focusable`);
   }
 });
 
 test("UI text avoids low-contrast slate-400 (placeholders and decorative icons excepted)", () => {
-  for (const file of ["src/components/app-shell.tsx", "src/components/search-chat.tsx", "src/components/course-catalog.tsx", "src/components/document-library.tsx"]) {
+  for (const file of ["src/components/app-shell.tsx", "src/components/search-chat.tsx", "src/components/course-catalog.tsx", "src/components/document-library.tsx", "src/components/settings-view.tsx"]) {
     for (const line of source(file).split("\n")) {
       for (const [, cls] of line.matchAll(/className="([^"]*)"/g)) {
         if (/(^|\s)text-slate-400(\s|$)/.test(cls)) assert.match(line, /aria-hidden="true"/, `${file}: ${cls}`);
